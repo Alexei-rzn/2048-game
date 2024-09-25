@@ -1,88 +1,54 @@
+/* Основные стили для игры 2048 */
+
 body {
     font-family: Arial, sans-serif;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
     background-color: #faf8ef;
+    margin: 0;
 }
 
 h1 {
+    font-size: 3rem;
     color: #776e65;
 }
 
 #game-board {
-    display: inline-block;
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 10px;
     margin-top: 20px;
-}
-
-.row {
-    display: flex;
 }
 
 .cell {
     width: 100px;
     height: 100px;
-    background-color: #cdc1b4;
-    margin: 5px;
+    background-color: #bbada0;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 2rem;
-    color: #776e65;
-    font-weight: bold;
+    color: white;
+    border-radius: 10px;
 }
 
 .cell[data-value="2"] {
     background-color: #eee4da;
+    color: #776e65;
 }
 
 .cell[data-value="4"] {
     background-color: #ede0c8;
+    color: #776e65;
 }
 
 .cell[data-value="8"] {
     background-color: #f2b179;
+    color: white;
 }
 
-.cell[data-value="16"] {
-    background-color: #f59563;
-}
-
-.cell[data-value="32"] {
-    background-color: #f67c5f;
-}
-
-.cell[data-value="64"] {
-    background-color: #f65e3b;
-}
-
-.cell[data-value="128"] {
-    background-color: #edcf72;
-}
-
-.cell[data-value="256"] {
-    background-color: #edcc61;
-}
-
-.cell[data-value="512"] {
-    background-color: #edc850;
-}
-
-.cell[data-value="1024"] {
-    background-color: #edc53f;
-}
-
-.cell[data-value="2048"] {
-    background-color: #edc22e;
-}
-
-#status {
-    margin-top: 20px;
-    font-size: 1.5rem;
-    color: #776e65;
-}
-@media (max-width: 600px) {
-    .cell {
-        width: 70px;
-        height: 70px;
-        font-size: 1.5rem;
-    }
-}
+/* Дополнительные стили для плиток */
