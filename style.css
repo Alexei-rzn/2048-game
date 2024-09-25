@@ -79,3 +79,10 @@ h1 {
     font-size: 1.5rem;
     color: #776e65;
 }
+@media (max-width: 600px) {
+    .cell {
+        width: 70px;
+        height: 70px;
+        font-size: 1.5rem;
+    }
+}
