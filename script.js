@@ -1,147 +1,104 @@
-const boardElement = document.getElementById('game-board');
-const scoreElement = document.getElementById('score');
+const gridContainer = document.getElementById("grid-container");
+const scoreDisplay = document.getElementById("score");
 
-let board;
+let grid = [];
 let score = 0;
 
-function initializeGame() {
-    board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
-    addNewTile();
-    addNewTile();
-    updateBoard();
+function initGame() {
+    grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+    score = 0;
+    addTile();
+    addTile();
+    updateGrid();
 }
 
-function addNewTile() {
-    const emptyCells = [];
+function addTile() {
+    let emptySpaces = [];
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-            if (board[i][j] === 0) {
-                emptyCells.push({ x: i, y: j });
-            }
+            if (grid[i][j] === 0) emptySpaces.push({ i, j });
         }
     }
-    if (emptyCells.length) {
-        const { x, y } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        board[x][y] = Math.random() < 0.9 ? 2 : 4;
+    if (emptySpaces.length > 0) {
+        const { i, j } = emptySpaces[Math.floor(Math.random() * emptySpaces.length)];
+        grid[i][j] = Math.random() < 0.9 ? 2 : 4;
     }
 }
 
-function updateBoard() {
-    boardElement.innerHTML = ''; // Очистка доски
-    board.forEach(row => {
-        row.forEach(value => {
-            const tile = document.createElement('div');
-            tile.classList.add('tile');
-            tile.textContent = value !== 0 ? value : '';
-            boardElement.appendChild(tile);
+function updateGrid() {
+    gridContainer.innerHTML = '';
+    grid.forEach(row => {
+        row.forEach(tile => {
+            const tileElement = document.createElement("div");
+            tileElement.classList.add("tile");
+            if (tile > 0) {
+                tileElement.classList.add(`tile-${tile}`);
+                tileElement.innerText = tile;
+            }
+            gridContainer.appendChild(tileElement);
         });
     });
-    scoreElement.textContent = score;
+    scoreDisplay.innerText = score;
 }
 
-function compress(board) {
-    const newBoard = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
-    for (let i = 0; i < 4; i++) {
-        let pos = 0;
-        for (let j = 0; j < 4; j++) {
-            if (board[i][j] !== 0) {
-                newBoard[i][pos] = board[i][j];
-                pos++;
-            }
-        }
+function handleSwipe(direction) {
+    if (direction === 'left') {
+        // Реализация слияния влево
+        moveLeft();
     }
-    return newBoard;
-}
-
-function merge(board) {
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 3; j++) {
-            if (board[i][j] === board[i][j + 1] && board[i][j] !== 0) {
-                board[i][j] *= 2; // Удвоение значения
-                score += board[i][j]; // Увеличение счета
-                board[i][j + 1] = 0; // Обнуление плитки справа
-            }
-        }
-    }
-    return board;
-}
-
-function rotateBoard(board) {
-    return board[0].map((val, index) => board.map(row => row[index]).reverse());
+    // Дальше можно добавить другие направления (вправо, вверх, вниз)
+    
+    addTile();
+    updateGrid();
 }
 
 function moveLeft() {
-    let newBoard = compress(board);
-    newBoard = merge(newBoard);
-    newBoard = compress(newBoard);
-    board = newBoard;
-    addNewTile();
-    updateBoard();
-}
-
-function moveRight() {
-    board = rotateBoard(rotateBoard(board));
-    moveLeft();
-    board = rotateBoard(rotateBoard(board));
-}
-
-function moveUp() {
-    board = rotateBoard(board);
-    moveLeft();
-    board = rotateBoard(rotateBoard(board));
-}
-
-function moveDown() {
-    board = rotateBoard(rotateBoard(rotateBoard(board)));
-    moveLeft();
-}
-
-function checkGameOver() {
-    if (board.flat().includes(0)) return false;
+    // Реализация движения влево
     for (let i = 0; i < 4; i++) {
+        let newRow = grid[i].filter(value => value);
+        let missing = 4 - newRow.length;
+        let zeros = Array(missing).fill(0);
+        newRow = newRow.concat(zeros);
+
         for (let j = 0; j < 3; j++) {
-            if (board[i][j] === board[i][j + 1] || board[i][j] === board[i + 1]?.[j]) {
-                return false;
+            if (newRow[j] === newRow[j + 1] && newRow[j] !== 0) {
+                newRow[j] *= 2;
+                score += newRow[j];
+                newRow[j + 1] = 0;
             }
         }
+        newRow = newRow.filter(value => value);
+        missing = 4 - newRow.length;
+        zeros = Array(missing).fill(0);
+        newRow = newRow.concat(zeros);
+        grid[i] = newRow;
     }
-    return true;
 }
 
-// Обработка касаний
-let touchStartX, touchStartY;
-
-boardElement.addEventListener('touchstart', (event) => {
-    const touch = event.touches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
+// Обработка событий касания
+let startX, startY;
+gridContainer.addEventListener("touchstart", (event) => {
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
 });
 
-boardElement.addEventListener('touchmove', (event) => {
-    event.preventDefault(); // Предотвращение прокрутки страницы
-});
+gridContainer.addEventListener("touchend", (event) => {
+    const endX = event.changedTouches[0].clientX;
+    const endY = event.changedTouches[0].clientY;
 
-boardElement.addEventListener('touchend', (event) => {
-    const touch = event.changedTouches[0];
-    const touchEndX = touch.clientX;
-    const touchEndY = touch.clientY;
-
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0) moveRight(); // Движение вправо
-        else moveLeft(); // Движение влево
+        handleSwipe(deltaX > 0 ? 'right' : 'left');
     } else {
-        if (deltaY > 0) moveDown(); // Движение вниз
-        else moveUp(); // Движение вверх
-    }
-
-    if (checkGameOver()) {
-        setTimeout(() => alert("Игра окончена!"), 100);
+        handleSwipe(deltaY > 0 ? 'down' : 'up');
     }
 });
 
-// Инициализация игры
-initializeGame();
-        
+initGame();
