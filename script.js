@@ -159,19 +159,25 @@ function rotateGrid(grid, reverse = false) {
 
 // Обработка свайпов
 function handleSwipe(direction) {
+    let moved = false;
+
     switch (direction) {
         case 'left':
-            moveLeft();
+            moved = moveLeft();
             break;
         case 'right':
-            moveRight();
+            moved = moveRight();
             break;
         case 'up':
-            moveUp();
+            moved = moveUp();
             break;
         case 'down':
-            moveDown();
+            moved = moveDown();
             break;
+    }
+
+    if (moved) {
+        addNewTile();
     }
     updateGrid();
 }
