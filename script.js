@@ -5,36 +5,27 @@ const gameOverDisplay = document.getElementById("game-over");
 
 let grid = [];
 let score = 0;
-let canMove = true;
 
 // Инициализация игры
 function initGame() {
-    grid = [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]
-    ];
+    grid = Array.from({ length: 4 }, () => Array(4).fill(0));
     score = 0;
-    canMove = true;
-    scoreDisplay.innerText = score;
-    gameOverDisplay.classList.add("hidden");
-    addTile();
-    addTile();
+    addNewTile();
+    addNewTile();
     updateGrid();
 }
 
-// Добавление плитки на свободное место
-function addTile() {
-    let emptySpaces = [];
+// Добавление новой плитки
+function addNewTile() {
+    let emptyCells = [];
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-            if (grid[i][j] === 0) emptySpaces.push({ i, j });
+            if (grid[i][j] === 0) emptyCells.push({ i, j });
         }
     }
-    if (emptySpaces.length > 0) {
-        const { i, j } = emptySpaces[Math.floor(Math.random() * emptySpaces.length)];
-        grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+    if (emptyCells.length) {
+        const { i, j } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        grid[i][j] = Math.random() < 0.9 ? 2 : 4; // 90% вероятность 2, 10% - 4
     }
 }
 
@@ -54,79 +45,63 @@ function updateGrid() {
     });
     scoreDisplay.innerText = score;
 
-    // Проверка на окончание игры
     if (checkGameOver()) {
-        canMove = false;
         gameOverDisplay.classList.remove("hidden");
     }
 }
 
 // Проверка на окончание игры
 function checkGameOver() {
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-            if (grid[i][j] === 0) return false; // Если есть пустая клетка
-            if (i < 3 && grid[i][j] === grid[i + 1][j]) return false; // Проверка вниз
-            if (j < 3 && grid[i][j] === grid[i][j + 1]) return false; // Проверка вправо
-        }
-    }
-    return true;
+    return grid.flat().every(cell => cell !== 0) &&
+        !grid.some((row, i) => row.some((cell, j) => 
+            (j < 3 && cell === row[j + 1]) || (i < 3 && cell === grid[i + 1][j])
+        ));
 }
 
-// Движение плиток влево
+// Сжатие и объединение плиток
+function compressAndMerge(row) {
+    let newRow = row.filter(value => value);
+    for (let i = 0; i < newRow.length - 1; i++) {
+        if (newRow[i] === newRow[i + 1]) {
+            newRow[i] *= 2;
+            score += newRow[i];
+            newRow[i + 1] = 0;
+        }
+    }
+    newRow = newRow.filter(value => value);
+    while (newRow.length < 4) newRow.push(0);
+    return newRow;
+}
+
+// Движение влево
 function moveLeft() {
-    let moved = false;
     for (let i = 0; i < 4; i++) {
-        let newRow = grid[i].filter(value => value);
-        let scoreChange = 0;
-
-        // Объединение плиток
-        for (let j = 0; j < newRow.length - 1; j++) {
-            if (newRow[j] === newRow[j + 1] && newRow[j] !== 0) {
-                newRow[j] *= 2;
-                scoreChange += newRow[j];
-                newRow[j + 1] = 0;
-                moved = true;
-            }
-        }
-        newRow = newRow.filter(value => value);
-        const missing = 4 - newRow.length;
-        const zeros = Array(missing).fill(0);
-        grid[i] = newRow.concat(zeros);
-        score += scoreChange;
+        grid[i] = compressAndMerge(grid[i]);
     }
-    return moved;
 }
 
-// Движение плиток вправо
+// Движение вправо
 function moveRight() {
-    grid.forEach((row, i) => {
-        grid[i] = row.reverse();
-    });
-    const moved = moveLeft();
-    grid.forEach((row, i) => {
-        grid[i] = row.reverse();
-    });
-    return moved;
+    for (let i = 0; i < 4; i++) {
+        grid[i] = compressAndMerge(grid[i].reverse()).reverse();
+    }
 }
 
-// Движение плиток вверх
+// Движение вверх
 function moveUp() {
     grid = rotateGrid(grid);
-    const moved = moveLeft();
+    moveLeft();
     grid = rotateGrid(grid, true);
-    return moved;
 }
 
-// Движение плиток вниз
+// Движение вниз
 function moveDown() {
     grid = rotateGrid(grid);
-    const moved = moveRight();
+    moveRight();
     grid = rotateGrid(grid, true);
-    return moved;
 }
 
-// Поворот сетки для движения вверх и вниз
+// Поворот сетки для использования функций движения
 function rotateGrid(grid, reverse = false) {
     const newGrid = [];
     for (let i = 0; i < 4; i++) {
@@ -140,29 +115,29 @@ function rotateGrid(grid, reverse = false) {
 
 // Обработка свайпов
 function handleSwipe(direction) {
-    if (!canMove) return; // Если игра окончена, ничего не делаем
-
-    let moved = false;
     switch (direction) {
         case 'left':
-            moved = moveLeft();
+            moveLeft();
             break;
         case 'right':
-            moved = moveRight();
+            moveRight();
             break;
         case 'up':
-            moved = moveUp();
+            moveUp();
             break;
         case 'down':
-            moved = moveDown();
+            moveDown();
             break;
     }
-    
-    if (moved) {
-        addTile();
-        updateGrid();
-    }
+    addNewTile();
+    updateGrid();
 }
+
+// Кнопка перезапуска игры
+restartButton.addEventListener("click", () => {
+    gameOverDisplay.classList.add("hidden");
+    initGame();
+});
 
 // События касания
 let startX, startY;
@@ -185,8 +160,5 @@ gridContainer.addEventListener("touchend", (event) => {
     }
 });
 
-// Кнопка перезапуска
-restartButton.addEventListener("click", initGame);
-
-// Начальная инициализация игры
+// Инициализация игры
 initGame();
