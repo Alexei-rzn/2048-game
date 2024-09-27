@@ -65,6 +65,7 @@ function compressAndMerge(line) {
     let scoreChange = 0;
 
     for (let i = 0; i < newLine.length; i++) {
+        // Объединение плиток
         if (newLine[i] === newLine[i + 1]) {
             mergedLine.push(newLine[i] * 2);
             scoreChange += newLine[i] * 2;
@@ -77,39 +78,71 @@ function compressAndMerge(line) {
     while (mergedLine.length < 4) mergedLine.push(0); // Заполнение до 4
     score += scoreChange;
     
-    return mergedLine;
+    return { line: mergedLine, scoreChange };
 }
 
 // Движение влево
 function moveLeft() {
+    let moved = false;
     for (let i = 0; i < 4; i++) {
-        grid[i] = compressAndMerge(grid[i]);
+        const { line, scoreChange } = compressAndMerge(grid[i]);
+        if (JSON.stringify(line) !== JSON.stringify(grid[i])) {
+            moved = true; // Если линия изменилась, значит что-то двигалось
+        }
+        grid[i] = line;
+    }
+    if (moved) {
+        addNewTile();
     }
 }
 
 // Движение вправо
 function moveRight() {
+    let moved = false;
     for (let i = 0; i < 4; i++) {
-        grid[i] = compressAndMerge(grid[i].reverse()).reverse();
+        const { line, scoreChange } = compressAndMerge(grid[i].reverse());
+        if (JSON.stringify(line.reverse()) !== JSON.stringify(grid[i])) {
+            moved = true;
+        }
+        grid[i] = line.reverse();
+    }
+    if (moved) {
+        addNewTile();
     }
 }
 
 // Движение вверх
 function moveUp() {
     grid = rotateGrid(grid);
+    let moved = false;
     for (let i = 0; i < 4; i++) {
-        grid[i] = compressAndMerge(grid[i]);
+        const { line, scoreChange } = compressAndMerge(grid[i]);
+        if (JSON.stringify(line) !== JSON.stringify(grid[i])) {
+            moved = true;
+        }
+        grid[i] = line;
     }
     grid = rotateGrid(grid, true);
+    if (moved) {
+        addNewTile();
+    }
 }
 
 // Движение вниз
 function moveDown() {
     grid = rotateGrid(grid);
+    let moved = false;
     for (let i = 0; i < 4; i++) {
-        grid[i] = compressAndMerge(grid[i].reverse()).reverse();
+        const { line, scoreChange } = compressAndMerge(grid[i].reverse());
+        if (JSON.stringify(line.reverse()) !== JSON.stringify(grid[i])) {
+            moved = true;
+        }
+        grid[i] = line.reverse();
     }
     grid = rotateGrid(grid, true);
+    if (moved) {
+        addNewTile();
+    }
 }
 
 // Поворот сетки для использования функций движения
@@ -140,7 +173,6 @@ function handleSwipe(direction) {
             moveDown();
             break;
     }
-    addNewTile();
     updateGrid();
 }
 
