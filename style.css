@@ -1,5 +1,5 @@
 body {
-    background-color: #9B59B6; /* Цвет фона */
+    background-color: #8cceff; /* Цвет фона */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,14 +10,13 @@ body {
 .game-container {
     text-align: center;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     padding: 20px;
-    background-color: #8E44AD; /* Основной цвет контейнера */
 }
 
 .score-container {
     font-size: 24px;
-    color: white;
+    color: #fff;
+    margin-bottom: 20px;
 }
 
 .restart-button {
@@ -27,7 +26,7 @@ body {
     cursor: pointer;
     border: none;
     border-radius: 5px;
-    background-color: #FF5733; /* Цвет кнопки */
+    background-color: #f39c12; /* Цвет кнопки */
     color: white;
 }
 
@@ -46,24 +45,25 @@ body {
     font-size: 32px;
     border-radius: 5px;
     color: white;
+    text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.tile-2 { background-color: #F9E79F; }
-.tile-4 { background-color: #F7DC6F; }
-.tile-8 { background-color: #F39C12; }
-.tile-16 { background-color: #E67E22; }
-.tile-32 { background-color: #D35400; }
-.tile-64 { background-color: #C0392B; }
-.tile-128 { background-color: #E74C3C; }
-.tile-256 { background-color: #C0392B; }
-.tile-512 { background-color: #A93226; }
-.tile-1024 { background-color: #922B21; }
-.tile-2048 { background-color: #641E16; }
+.tile-2 { background-color: #60b3d8; }
+.tile-4 { background-color: #65c4dc; }
+.tile-8 { background-color: #6ce7d3; }
+.tile-16 { background-color: #68e4ca; }
+.tile-32 { background-color: #1bc4c7; }
+.tile-64 { background-color: #1ab1b2; }
+.tile-128 { background-color: #0095f8; }
+.tile-256 { background-color: #0077bb; }
+.tile-512 { background-color: #005e99; }
+.tile-1024 { background-color: #004577; }
+.tile-2048 { background-color: #003858; }
 
 .game-over {
     font-size: 24px;
-    color: white;
+    color: red;
     margin-top: 20px;
 }
 
