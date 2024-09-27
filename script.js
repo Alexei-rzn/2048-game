@@ -1,149 +1,192 @@
-const boardElement = document.getElementById('game-board');
-const scoreElement = document.getElementById('score');
+const gridContainer = document.getElementById("grid-container");
+const scoreDisplay = document.getElementById("score");
+const restartButton = document.getElementById("restart");
+const gameOverDisplay = document.getElementById("game-over");
 
-let board;
+let grid = [];
 let score = 0;
+let canMove = true;
 
-function initializeGame() {
-    board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
-    addNewTile();
-    addNewTile();
-    updateBoard();
+// Инициализация игры
+function initGame() {
+    grid = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+    score = 0;
+    canMove = true;
+    scoreDisplay.innerText = score;
+    gameOverDisplay.classList.add("hidden");
+    addTile();
+    addTile();
+    updateGrid();
 }
 
-function addNewTile() {
-    const emptyCells = [];
+// Добавление плитки на свободное место
+function addTile() {
+    let emptySpaces = [];
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-            if (board[i][j] === 0) {
-                emptyCells.push({ x: i, y: j });
-            }
+            if (grid[i][j] === 0) emptySpaces.push({ i, j });
         }
     }
-    if (emptyCells.length) {
-        const { x, y } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        board[x][y] = Math.random() < 0.9 ? 2 : 4;
+    if (emptySpaces.length > 0) {
+        const { i, j } = emptySpaces[Math.floor(Math.random() * emptySpaces.length)];
+        grid[i][j] = Math.random() < 0.9 ? 2 : 4;
     }
 }
 
-function updateBoard() {
-    boardElement.innerHTML = ''; // Очистка доски
-    board.forEach(row => {
-        row.forEach(value => {
-            const tile = document.createElement('div');
-            tile.classList.add('tile');
-            if (value !== 0) {
-                tile.classList.add(`tile-${value}`);
-                tile.textContent = value;
+// Обновление отображения плиток на экране
+function updateGrid() {
+    gridContainer.innerHTML = '';
+    grid.forEach(row => {
+        row.forEach(tile => {
+            const tileElement = document.createElement("div");
+            tileElement.classList.add("tile");
+            if (tile > 0) {
+                tileElement.classList.add(`tile-${tile}`);
+                tileElement.innerText = tile;
             }
-            boardElement.appendChild(tile);
+            gridContainer.appendChild(tileElement);
         });
     });
-    scoreElement.textContent = score;
-}
+    scoreDisplay.innerText = score;
 
-function compress(board) {
-    const newBoard = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
-    for (let i = 0; i < 4; i++) {
-        let pos = 0;
-        for (let j = 0; j < 4; j++) {
-            if (board[i][j] !== 0) {
-                newBoard[i][pos] = board[i][j];
-                pos++;
-            }
-        }
+    // Проверка на окончание игры
+    if (checkGameOver()) {
+        canMove = false;
+        gameOverDisplay.classList.remove("hidden");
     }
-    return newBoard;
 }
 
-function merge(board) {
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 3; j++) {
-            if (board[i][j] === board[i][j + 1] && board[i][j] !== 0) {
-                board[i][j] *= 2; // Удвоение значения
-                score += board[i][j]; // Увеличение счета
-                board[i][j + 1] = 0; // Обнуление плитки справа
-            }
-        }
-    }
-    return board;
-}
-
-function rotateBoard(board) {
-    return board[0].map((val, index) => board.map(row => row[index]).reverse());
-}
-
-function moveLeft() {
-    let newBoard = compress(board);
-    newBoard = merge(newBoard);
-    newBoard = compress(newBoard);
-    board = newBoard;
-    addNewTile();
-    updateBoard();
-}
-
-function moveRight() {
-    board = rotateBoard(rotateBoard(board));
-    moveLeft();
-    board = rotateBoard(rotateBoard(board));
-}
-
-function moveUp() {
-    board = rotateBoard(board);
-    moveLeft();
-    board = rotateBoard(rotateBoard(board));
-}
-
-function moveDown() {
-    board = rotateBoard(rotateBoard(rotateBoard(board)));
-    moveLeft();
-}
-
+// Проверка на окончание игры
 function checkGameOver() {
-    if (board.flat().includes(0)) return false;
     for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 3; j++) {
-            if (board[i][j] === board[i][j + 1] || board[i][j] === board[i + 1]?.[j]) {
-                return false;
-            }
+        for (let j = 0; j < 4; j++) {
+            if (grid[i][j] === 0) return false; // Если есть пустая клетка
+            if (i < 3 && grid[i][j] === grid[i + 1][j]) return false; // Проверка вниз
+            if (j < 3 && grid[i][j] === grid[i][j + 1]) return false; // Проверка вправо
         }
     }
     return true;
 }
 
-// Обработка касаний для мобильных устройств
-let touchStartX, touchStartY;
+// Движение плиток влево
+function moveLeft() {
+    let moved = false;
+    for (let i = 0; i < 4; i++) {
+        let newRow = grid[i].filter(value => value);
+        let scoreChange = 0;
 
-boardElement.addEventListener('touchstart', (event) => {
-    const touch = event.touches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
+        // Объединение плиток
+        for (let j = 0; j < newRow.length - 1; j++) {
+            if (newRow[j] === newRow[j + 1] && newRow[j] !== 0) {
+                newRow[j] *= 2;
+                scoreChange += newRow[j];
+                newRow[j + 1] = 0;
+                moved = true;
+            }
+        }
+        newRow = newRow.filter(value => value);
+        const missing = 4 - newRow.length;
+        const zeros = Array(missing).fill(0);
+        grid[i] = newRow.concat(zeros);
+        score += scoreChange;
+    }
+    return moved;
+}
+
+// Движение плиток вправо
+function moveRight() {
+    grid.forEach((row, i) => {
+        grid[i] = row.reverse();
+    });
+    const moved = moveLeft();
+    grid.forEach((row, i) => {
+        grid[i] = row.reverse();
+    });
+    return moved;
+}
+
+// Движение плиток вверх
+function moveUp() {
+    grid = rotateGrid(grid);
+    const moved = moveLeft();
+    grid = rotateGrid(grid, true);
+    return moved;
+}
+
+// Движение плиток вниз
+function moveDown() {
+    grid = rotateGrid(grid);
+    const moved = moveRight();
+    grid = rotateGrid(grid, true);
+    return moved;
+}
+
+// Поворот сетки для движения вверх и вниз
+function rotateGrid(grid, reverse = false) {
+    const newGrid = [];
+    for (let i = 0; i < 4; i++) {
+        newGrid[i] = [];
+        for (let j = 0; j < 4; j++) {
+            newGrid[i][j] = reverse ? grid[j][i] : grid[3 - j][i];
+        }
+    }
+    return newGrid;
+}
+
+// Обработка свайпов
+function handleSwipe(direction) {
+    if (!canMove) return; // Если игра окончена, ничего не делаем
+
+    let moved = false;
+    switch (direction) {
+        case 'left':
+            moved = moveLeft();
+            break;
+        case 'right':
+            moved = moveRight();
+            break;
+        case 'up':
+            moved = moveUp();
+            break;
+        case 'down':
+            moved = moveDown();
+            break;
+    }
+    
+    if (moved) {
+        addTile();
+        updateGrid();
+    }
+}
+
+// События касания
+let startX, startY;
+gridContainer.addEventListener("touchstart", (event) => {
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
 });
 
-boardElement.addEventListener('touchmove', (event) => {
-    event.preventDefault(); // Предотвращение прокрутки страницы
-});
+gridContainer.addEventListener("touchend", (event) => {
+    const endX = event.changedTouches[0].clientX;
+    const endY = event.changedTouches[0].clientY;
 
-boardElement.addEventListener('touchend', (event) => {
-    const touch = event.changedTouches[0];
-    const touchEndX = touch.clientX;
-    const touchEndY = touch.clientY;
-
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0) moveRight(); // Свайп вправо
-        else moveLeft(); // Свайп влево
+        handleSwipe(deltaX > 0 ? 'right' : 'left');
     } else {
-        if (deltaY > 0) moveDown(); // Свайп вниз
-        else moveUp(); // Свайп вверх
-    }
-
-    if (checkGameOver()) {
-        setTimeout(() => alert("Игра окончена!"), 100);
+        handleSwipe(deltaY > 0 ? 'down' : 'up');
     }
 });
 
-// Инициализация игры
-initializeGame();
+// Кнопка перезапуска
+restartButton.addEventListener("click", initGame);
+
+// Начальная инициализация игры
+initGame();
