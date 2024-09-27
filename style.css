@@ -1,56 +1,72 @@
 body {
-    font-family: Arial, sans-serif;
+    background-color: #9B59B6; /* Цвет фона */
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    background-color: #faf8ef;
+    font-family: 'Arial', sans-serif;
 }
 
 .game-container {
-    position: relative;
     text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    background-color: #8E44AD; /* Основной цвет контейнера */
 }
 
 .score-container {
-    text-align: center;
     font-size: 24px;
-    margin-bottom: 10px;
+    color: white;
 }
 
-.game-board {
-    width: 90vw; /* 90% от ширины экрана */
-    height: 90vw; /* 90% от ширины экрана для квадратной доски */
+.restart-button {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #FF5733; /* Цвет кнопки */
+    color: white;
+}
+
+.grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    margin: 0 auto;
-    background-color: #bbada0;
-    border-radius: 10px;
-    padding: 10px;
 }
 
 .tile {
+    width: 80px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 32px;
     border-radius: 5px;
-    font-size: 2.5rem;
-    font-weight: bold;
     color: white;
-    height: calc(90vw / 4 - 10px); /* Динамическая высота для подгонки под экран */
-    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.tile-2 { background-color: #eee4da; color: #776e65; }
-.tile-4 { background-color: #ede0c8; color: #776e65; }
-.tile-8 { background-color: #f2b179; }
-.tile-16 { background-color: #f59563; }
-.tile-32 { background-color: #f67c5f; }
-.tile-64 { background-color: #f65e3b; }
-.tile-128 { background-color: #edcf72; }
-.tile-256 { background-color: #edcc61; }
-.tile-512 { background-color: #edc850; }
-.tile-1024 { background-color: #edc53f; }
-.tile-2048 { background-color: #edc22e; }
+.tile-2 { background-color: #F9E79F; }
+.tile-4 { background-color: #F7DC6F; }
+.tile-8 { background-color: #F39C12; }
+.tile-16 { background-color: #E67E22; }
+.tile-32 { background-color: #D35400; }
+.tile-64 { background-color: #C0392B; }
+.tile-128 { background-color: #E74C3C; }
+.tile-256 { background-color: #C0392B; }
+.tile-512 { background-color: #A93226; }
+.tile-1024 { background-color: #922B21; }
+.tile-2048 { background-color: #641E16; }
+
+.game-over {
+    font-size: 24px;
+    color: white;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
