@@ -1,92 +1,43 @@
-/* Основные стили для игры 2048 */
 body {
-    font-family: Arial, sans-serif; /* Шрифт для текста */
-    display: flex; /* Flexbox для центрирования контента */
-    justify-content: center; /* Центрирование по горизонтали */
-    align-items: center; /* Центрирование по вертикали */
-    flex-direction: column; /* Вертикальная ориентация */
-    height: 100vh; /* Высота в 100% от высоты окна */
-    background-color: #faf8ef; /* Цвет фона */
-    margin: 0; /* Убираем отступы */
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #faf8ef;
 }
 
-h1 {
-    font-size: 3rem; /* Размер заголовка */
-    color: #776e65; /* Цвет текста заголовка */
+.game-container {
+    position: relative;
 }
 
-#game-board {
-    display: grid; /* Используем сетку для игрового поля */
-    grid-template-columns: repeat(4, 100px); /* 4 колонки по 100 пикселей */
-    grid-template-rows: repeat(4, 100px); /* 4 строки по 100 пикселей */
-    gap: 10px; /* Пробел между плитками */
-    margin-top: 20px; /* Отступ сверху */
+.score-container {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 10px;
 }
 
-.cell {
-    width: 100px; /* Ширина плитки */
-    height: 100px; /* Высота плитки */
-    background-color: #bbada0; /* Цвет фона плитки */
-    display: flex; /* Flexbox для центрирования текста в плитке */
-    justify-content: center; /* Центрирование по горизонтали */
-    align-items: center; /* Центрирование по вертикали */
-    font-size: 2rem; /* Размер текста плитки */
-    color: white; /* Цвет текста плитки */
-    border-radius: 10px; /* Скругление углов */
+.game-board {
+    width: 400px;
+    height: 400px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
-/* Стили для плиток с различными значениями */
-.cell[data-value="2"] {
+.tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #eee4da;
-    color: #776e65;
+    border-radius: 5px;
+    font-size: 40px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.cell[data-value="4"] {
-    background-color: #ede0c8;
-    color: #776e65;
-}
-
-.cell[data-value="8"] {
-    background-color: #f2b179;
-    color: white;
-}
-
-.cell[data-value="16"] {
-    background-color: #f59563;
-    color: white;
-}
-
-.cell[data-value="32"] {
-    background-color: #f67c5f;
-    color: white;
-}
-
-.cell[data-value="64"] {
-    background-color: #f67c5f;
-    color: white;
-}
-
-.cell[data-value="128"] {
-    background-color: #edcf72;
-    color: white;
-}
-
-.cell[data-value="256"] {
-    background-color: #edcc61;
-    color: white;
-}
-
-.cell[data-value="512"] {
-    background-color: #edc850;
-    color: white;
-}
-
-.cell[data-value="1024"] {
-    background-color: #edc53f;
-    color: white;
-}
-
-.cell[data-value="2048"] {
-    background-color: #edc22e;
-    color: white;
+.tile.highlight {
+    transform: scale(1.1);
+    background-color: #f9c74f;
 }
