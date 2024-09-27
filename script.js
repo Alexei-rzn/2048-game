@@ -59,18 +59,25 @@ function checkGameOver() {
 }
 
 // Сжатие и объединение плиток
-function compressAndMerge(row) {
-    let newRow = row.filter(value => value);
-    for (let i = 0; i < newRow.length - 1; i++) {
-        if (newRow[i] === newRow[i + 1]) {
-            newRow[i] *= 2;
-            score += newRow[i];
-            newRow[i + 1] = 0;
+function compressAndMerge(line) {
+    let newLine = line.filter(value => value);
+    let mergedLine = [];
+    let scoreChange = 0;
+
+    for (let i = 0; i < newLine.length; i++) {
+        if (newLine[i] === newLine[i + 1]) {
+            mergedLine.push(newLine[i] * 2);
+            scoreChange += newLine[i] * 2;
+            i++; // Пропустить следующий элемент, так как он объединен
+        } else {
+            mergedLine.push(newLine[i]);
         }
     }
-    newRow = newRow.filter(value => value);
-    while (newRow.length < 4) newRow.push(0);
-    return newRow;
+    
+    while (mergedLine.length < 4) mergedLine.push(0); // Заполнение до 4
+    score += scoreChange;
+    
+    return mergedLine;
 }
 
 // Движение влево
@@ -90,14 +97,18 @@ function moveRight() {
 // Движение вверх
 function moveUp() {
     grid = rotateGrid(grid);
-    moveLeft();
+    for (let i = 0; i < 4; i++) {
+        grid[i] = compressAndMerge(grid[i]);
+    }
     grid = rotateGrid(grid, true);
 }
 
 // Движение вниз
 function moveDown() {
     grid = rotateGrid(grid);
-    moveRight();
+    for (let i = 0; i < 4; i++) {
+        grid[i] = compressAndMerge(grid[i].reverse()).reverse();
+    }
     grid = rotateGrid(grid, true);
 }
 
