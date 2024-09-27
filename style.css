@@ -18,6 +18,13 @@ body {
     margin-bottom: 20px;
 }
 
+.restart-button {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
 .grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -46,3 +53,13 @@ body {
 .tile-512 { background-color: #edc850; }
 .tile-1024 { background-color: #edc53f; }
 .tile-2048 { background-color: #edc22e; }
+
+.game-over {
+    font-size: 20px;
+    color: red;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
