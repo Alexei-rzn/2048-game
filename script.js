@@ -1,11 +1,11 @@
-// Игровая логика для 2048
+// Логика игры 2048
 
 document.addEventListener("DOMContentLoaded", function () {
     const gameBoard = document.getElementById('game-board');
-    let board = initializeGame();
-    displayBoard(board);
+    let board = initializeGame(); // Инициализация игровой доски
+    displayBoard(board); // Отображение начальной доски
 
-    // Добавляем обработку клавиш для управления
+    // Обработка клавиш для управления
     document.addEventListener('keydown', function(event) {
         if (event.key === 'ArrowUp') {
             board = moveUp(board);
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Добавляем поддержку свайпов для мобильных устройств
+    // Поддержка свайпов для мобильных устройств
     let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
 
     document.addEventListener("touchstart", (event) => {
@@ -60,8 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Функции инициализации и управления
-
+// Инициализация игры
 function initializeGame() {
     let board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
     addNewTile(board);
@@ -69,6 +68,7 @@ function initializeGame() {
     return board;
 }
 
+// Добавление новой плитки
 function addNewTile(board) {
     let emptyCells = [];
     for (let i = 0; i < 4; i++) {
@@ -80,14 +80,14 @@ function addNewTile(board) {
     }
     if (emptyCells.length > 0) {
         let { x, y } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        board[x][y] = Math.random() > 0.9 ? 4 : 2;
+        board[x][y] = Math.random() > 0.9 ? 4 : 2; // 10% вероятность появления 4
     }
 }
 
 // Отображение доски
 function displayBoard(board) {
     const gameBoard = document.getElementById('game-board');
-    gameBoard.innerHTML = '';
+    gameBoard.innerHTML = ''; // Очистка доски
     for (let row of board) {
         for (let cell of row) {
             const cellDiv = document.createElement('div');
@@ -101,28 +101,86 @@ function displayBoard(board) {
     }
 }
 
-// Движение плиток
+// Движение плиток влево
 function moveLeft(board) {
-    // Реализовать логику движения влево
-    return board;
+    let newBoard = compress(board);
+    newBoard = merge(newBoard);
+    newBoard = compress(newBoard);
+    addNewTile(newBoard);
+    return newBoard;
 }
 
+// Движение плиток вправо
 function moveRight(board) {
-    // Реализовать логику движения вправо
+    board = rotateBoard(board);
+    board = moveLeft(board);
+    board = rotateBoard(board);
     return board;
 }
 
+// Движение плиток вверх
 function moveUp(board) {
-    // Реализовать логику движения вверх
+    board = rotateBoard(rotateBoard(board));
+    board = moveLeft(board);
+    board = rotateBoard(rotateBoard(board));
     return board;
 }
 
+// Движение плиток вниз
 function moveDown(board) {
-    // Реализовать логику движения вниз
+    board = rotateBoard(rotateBoard(rotateBoard(board)));
+    board = moveLeft(board);
+    board = rotateBoard(board);
     return board;
 }
 
+// Поворот доски
+function rotateBoard(board) {
+    return board[0].map((_, index) => board.map(row => row[index])).reverse();
+}
+
+// Сжатие плиток
+function compress(board) {
+    let newBoard = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+    for (let i = 0; i < 4; i++) {
+        let pos = 0; // Позиция для вставки ненулевого значения
+        for (let j = 0; j < 4; j++) {
+            if (board[i][j] !== 0) {
+                newBoard[i][pos] = board[i][j];
+                pos++;
+            }
+        }
+    }
+    return newBoard;
+}
+
+// Объединение плиток
+function merge(board) {
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (board[i][j] === board[i][j + 1] && board[i][j] !== 0) {
+                board[i][j] *= 2; // Удвоение значения
+                board[i][j + 1] = 0; // Обнуление плитки справа
+            }
+        }
+    }
+    return board;
+}
+
+// Проверка окончания игры
 function checkGameOver(board) {
-    // Проверка конца игры
-    return false;
+    // Проверка на наличие пустых клеток
+    for (let row of board) {
+        if (row.includes(0)) return false; // Есть пустая клетка
+    }
+
+    // Проверка на возможность объединения плиток
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (board[i][j] === board[i][j + 1] || board[j][i] === board[j + 1][i]) {
+                return false; // Есть возможность объединения
+            }
+        }
+    }
+    return true; // Игра окончена
 }
