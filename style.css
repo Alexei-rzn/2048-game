@@ -1,43 +1,48 @@
 body {
-    font-family: Arial, sans-serif;
+    background-color: #faf8ef;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    background-color: #faf8ef;
+    font-family: 'Arial', sans-serif;
 }
 
 .game-container {
-    position: relative;
+    text-align: center;
+    width: 90vw;
+    max-width: 400px;
 }
 
 .score-container {
-    text-align: center;
     font-size: 24px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
-.game-board {
-    width: 400px;
-    height: 400px;
+.grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
 .tile {
+    width: 80px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #eee4da;
+    font-size: 32px;
     border-radius: 5px;
-    font-size: 40px;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
+    color: white;
 }
 
-.tile.highlight {
-    transform: scale(1.1);
-    background-color: #f9c74f;
-}
+.tile-2 { background-color: #eee4da; color: #776e65; }
+.tile-4 { background-color: #ede0c8; color: #776e65; }
+.tile-8 { background-color: #f2b179; }
+.tile-16 { background-color: #f59563; }
+.tile-32 { background-color: #f67c5f; }
+.tile-64 { background-color: #f55e3b; }
+.tile-128 { background-color: #edcf72; }
+.tile-256 { background-color: #edcc61; }
+.tile-512 { background-color: #edc850; }
+.tile-1024 { background-color: #edc53f; }
+.tile-2048 { background-color: #edc22e; }
