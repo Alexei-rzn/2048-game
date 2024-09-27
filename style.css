@@ -1,41 +1,41 @@
 /* Основные стили для игры 2048 */
-
 body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #faf8ef;
-    margin: 0;
+    font-family: Arial, sans-serif; /* Шрифт для текста */
+    display: flex; /* Flexbox для центрирования контента */
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: center; /* Центрирование по вертикали */
+    flex-direction: column; /* Вертикальная ориентация */
+    height: 100vh; /* Высота в 100% от высоты окна */
+    background-color: #faf8ef; /* Цвет фона */
+    margin: 0; /* Убираем отступы */
 }
 
 h1 {
-    font-size: 3rem;
-    color: #776e65;
+    font-size: 3rem; /* Размер заголовка */
+    color: #776e65; /* Цвет текста заголовка */
 }
 
 #game-board {
-    display: grid;
-    grid-template-columns: repeat(4, 100px);
-    grid-template-rows: repeat(4, 100px);
-    gap: 10px;
-    margin-top: 20px;
+    display: grid; /* Используем сетку для игрового поля */
+    grid-template-columns: repeat(4, 100px); /* 4 колонки по 100 пикселей */
+    grid-template-rows: repeat(4, 100px); /* 4 строки по 100 пикселей */
+    gap: 10px; /* Пробел между плитками */
+    margin-top: 20px; /* Отступ сверху */
 }
 
 .cell {
-    width: 100px;
-    height: 100px;
-    background-color: #bbada0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    color: white;
-    border-radius: 10px;
+    width: 100px; /* Ширина плитки */
+    height: 100px; /* Высота плитки */
+    background-color: #bbada0; /* Цвет фона плитки */
+    display: flex; /* Flexbox для центрирования текста в плитке */
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: center; /* Центрирование по вертикали */
+    font-size: 2rem; /* Размер текста плитки */
+    color: white; /* Цвет текста плитки */
+    border-radius: 10px; /* Скругление углов */
 }
 
+/* Стили для плиток с различными значениями */
 .cell[data-value="2"] {
     background-color: #eee4da;
     color: #776e65;
@@ -51,4 +51,42 @@ h1 {
     color: white;
 }
 
-/* Дополнительные стили для плиток */
+.cell[data-value="16"] {
+    background-color: #f59563;
+    color: white;
+}
+
+.cell[data-value="32"] {
+    background-color: #f67c5f;
+    color: white;
+}
+
+.cell[data-value="64"] {
+    background-color: #f67c5f;
+    color: white;
+}
+
+.cell[data-value="128"] {
+    background-color: #edcf72;
+    color: white;
+}
+
+.cell[data-value="256"] {
+    background-color: #edcc61;
+    color: white;
+}
+
+.cell[data-value="512"] {
+    background-color: #edc850;
+    color: white;
+}
+
+.cell[data-value="1024"] {
+    background-color: #edc53f;
+    color: white;
+}
+
+.cell[data-value="2048"] {
+    background-color: #edc22e;
+    color: white;
+}
