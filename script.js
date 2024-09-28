@@ -64,7 +64,7 @@ function move(direction) {
     switch (direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i]);
+                const newRow = compressRow(grid[i], 'left');
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -74,7 +74,7 @@ function move(direction) {
 
         case 'right':
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i].reverse()).reverse();
+                const newRow = compressRow(grid[i].reverse(), 'right').reverse();
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -85,7 +85,7 @@ function move(direction) {
         case 'up':
             grid = rotateGrid(grid);
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i]);
+                const newRow = compressRow(grid[i], 'up');
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -97,7 +97,7 @@ function move(direction) {
         case 'down':
             grid = rotateGrid(grid);
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i].reverse()).reverse();
+                const newRow = compressRow(grid[i].reverse(), 'down').reverse();
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -114,9 +114,10 @@ function move(direction) {
 }
 
 // Сжатие и объединение плиток по строке
-function compressRow(row) {
+function compressRow(row, direction) {
     let newRow = row.filter(value => value);
     let mergedRow = [];
+    
     for (let i = 0; i < newRow.length; i++) {
         if (newRow[i] === newRow[i + 1]) {
             mergedRow.push(newRow[i] * 2);
@@ -127,8 +128,21 @@ function compressRow(row) {
         }
     }
 
-    // Заполнение до 4 с учетом краев
-    while (mergedRow.length < 4) mergedRow.push(0); // Заполнение до 4
+    // Заполнение до 4
+    while (mergedRow.length < 4) mergedRow.push(0); 
+
+    // Применяем ограничение на движение плиток на границе
+    if (direction === 'left' || direction === 'right') {
+        if (mergedRow[0] === 0 && mergedRow[1] !== 0) {
+            mergedRow[0] = mergedRow[1];
+            mergedRow[1] = 0;
+        }
+        if (mergedRow[2] === 0 && mergedRow[3] !== 0) {
+            mergedRow[3] = mergedRow[2];
+            mergedRow[2] = 0;
+        }
+    }
+
     return mergedRow; 
 }
 
