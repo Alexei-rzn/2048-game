@@ -66,46 +66,42 @@ function move(direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
                 const newRow = slideRow(grid[i], direction);
+                grid[i] = newRow;
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
-                grid[i] = newRow;
             }
             break;
 
         case 'right':
             for (let i = 0; i < 4; i++) {
                 const newRow = slideRow(grid[i].reverse(), direction).reverse();
+                grid[i] = newRow;
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
-                grid[i] = newRow;
             }
             break;
 
         case 'up':
             for (let j = 0; j < 4; j++) {
                 const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
-                const newColumn = slideColumn(column, direction);
+                const newColumn = slideColumnUp(column);
                 for (let i = 0; i < 4; i++) {
-                    if (grid[i][j] !== newColumn[i]) {
-                        moved = true;
-                    }
                     grid[i][j] = newColumn[i];
                 }
+                moved = true; // Отметить, что произошло движение
             }
             break;
 
         case 'down':
             for (let j = 0; j < 4; j++) {
                 const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
-                const newColumn = slideColumn(column, direction);
+                const newColumn = slideColumnDown(column);
                 for (let i = 0; i < 4; i++) {
-                    if (grid[i][j] !== newColumn[i]) {
-                        moved = true;
-                    }
                     grid[i][j] = newColumn[i];
                 }
+                moved = true; // Отметить, что произошло движение
             }
             break;
     }
@@ -121,7 +117,7 @@ function slideRow(row, direction) {
     let newRow = row.filter(value => value); // Удаляем нули
     const emptySpaces = 4 - newRow.length; // Количество пустых мест
 
-    // Добавляем пустые места в начало или конец в зависимости от направления
+    // Добавляем пустые места в конец или начало в зависимости от направления
     if (direction === 'left') {
         newRow = [...newRow, ...Array(emptySpaces).fill(0)];
     } else {
@@ -144,17 +140,10 @@ function slideRow(row, direction) {
     return newRow;
 }
 
-// Логика сдвига плиток в колонне
-function slideColumn(column, direction) {
+// Логика сдвига плиток в колонне вверх
+function slideColumnUp(column) {
     let newColumn = column.filter(value => value); // Удаляем нули
-    const emptySpaces = 4 - newColumn.length; // Количество пустых мест
-
-    // Добавляем пустые места в начало или конец в зависимости от направления
-    if (direction === 'up') {
-        newColumn = [...newColumn, ...Array(emptySpaces).fill(0)];
-    } else {
-        newColumn = [...Array(emptySpaces).fill(0), ...newColumn];
-    }
+    while (newColumn.length < 4) newColumn.push(0); // Заполняем до 4
 
     // Складывание плиток
     for (let i = 0; i < 3; i++) {
@@ -172,16 +161,25 @@ function slideColumn(column, direction) {
     return newColumn;
 }
 
-// Поворот сетки
-function rotateGrid(grid, reverse = false) {
-    const newGrid = [];
-    for (let i = 0; i < 4; i++) {
-        newGrid[i] = [];
-        for (let j = 0; j < 4; j++) {
-            newGrid[i][j] = reverse ? grid[j][i] : grid[3 - j][i];
+// Логика сдвига плиток в колонне вниз
+function slideColumnDown(column) {
+    let newColumn = column.filter(value => value); // Удаляем нули
+    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
+
+    // Складывание плиток
+    for (let i = 3; i > 0; i--) {
+        if (newColumn[i] !== 0 && newColumn[i] === newColumn[i - 1]) {
+            newColumn[i] *= 2; // Складываем плитки
+            score += newColumn[i]; // Увеличиваем счёт
+            newColumn[i - 1] = 0; // Обнуляем предыдущую плитку
         }
     }
-    return newGrid;
+
+    // Убираем нули после складывания
+    newColumn = newColumn.filter(value => value);
+    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
+
+    return newColumn;
 }
 
 // Обработка свайпов
