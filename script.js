@@ -1,12 +1,4 @@
-const gridContainer = document.getElementById("grid-container");
-const scoreDisplay = document.getElementById("score");
-const restartButton = document.getElementById("restart");
-const gameOverDisplay = document.getElementById("game-over");
-
-let grid = [];
-let score = 0;
-
-// Инициализация игры
+// Инициализация игры, как и прежде
 function initGame() {
     grid = Array.from({ length: 4 }, () => Array(4).fill(0));
     score = 0;
@@ -25,11 +17,11 @@ function addNewTile() {
     }
     if (emptyCells.length) {
         const { i, j } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        grid[i][j] = Math.random() < 0.9 ? 2 : 4; // 90% вероятность 2, 10% - 4
+        grid[i][j] = Math.random() < 0.9 ? 2 : 4;
     }
 }
 
-// Обновление отображения плиток на экране
+// Обновление отображения плиток
 function updateGrid() {
     gridContainer.innerHTML = '';
     grid.forEach(row => {
@@ -50,61 +42,51 @@ function updateGrid() {
     }
 }
 
-// Проверка на окончание игры
-function checkGameOver() {
-    return grid.flat().every(cell => cell !== 0) &&
-        !grid.some((row, i) => row.some((cell, j) => 
-            (j < 3 && cell === row[j + 1]) || (i < 3 && cell === grid[i + 1][j])
-        ));
-}
-
-// Логика перемещения плиток
+// Перемещение плиток
 function move(direction) {
     let moved = false;
-    switch (direction) {
-        case 'left':
-            for (let i = 0; i < 4; i++) {
-                const newRow = slideRow(grid[i], direction);
-                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                    moved = true;
-                }
+    
+    if (direction === 'left') {
+        for (let i = 0; i < 4; i++) {
+            const newRow = compressRow(grid[i]);
+            if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                moved = true;
                 grid[i] = newRow;
             }
-            break;
-
-        case 'right':
-            for (let i = 0; i < 4; i++) {
-                const newRow = slideRow(grid[i].reverse(), direction).reverse();
-                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                    moved = true;
-                }
+        }
+    } 
+    else if (direction === 'right') {
+        for (let i = 0; i < 4; i++) {
+            const newRow = compressRow(grid[i].reverse()).reverse();
+            if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                moved = true;
                 grid[i] = newRow;
             }
-            break;
-
-        case 'up':
-            grid = rotateGrid(grid);
-            for (let i = 0; i < 4; i++) {
-                const newRow = slideRow(grid[i], direction);
-                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                    moved = true;
+        }
+    } 
+    else if (direction === 'up') {
+        for (let j = 0; j < 4; j++) {
+            const col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+            const newCol = compressRow(col);
+            if (JSON.stringify(newCol) !== JSON.stringify(col)) {
+                moved = true;
+                for (let i = 0; i < 4; i++) {
+                    grid[i][j] = newCol[i];
                 }
-                grid[i] = newRow;
             }
-            grid = rotateGrid(grid, true);
-            break;
-
-        case 'down':
-            grid = rotateGrid(grid);
-            for (let i = 0; i < 4; i++) {
-                const newRow = slideRow(grid[i].reverse(), direction).reverse();
-                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                    moved = true;
+        }
+    } 
+    else if (direction === 'down') {
+        for (let j = 0; j < 4; j++) {
+            const col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]].reverse();
+            const newCol = compressRow(col).reverse();
+            if (JSON.stringify(newCol) !== JSON.stringify(col)) {
+                moved = true;
+                for (let i = 0; i < 4; i++) {
+                    grid[i][j] = newCol[i];
                 }
-                grid[i] = newRow;
             }
-            grid = rotateGrid(grid, true);
-            break;
+        }
     }
 
     if (moved) {
@@ -113,43 +95,31 @@ function move(direction) {
     updateGrid();
 }
 
-// Логика сдвига плиток в строке
-function slideRow(row, direction) {
-    let newRow = row.filter(value => value); // Удаляем нули
-    const emptySpaces = 4 - newRow.length; // Количество пустых мест
-
-    // Добавляем пустые места в начало или конец в зависимости от направления
-    if (direction === 'left') {
-        newRow = [...newRow, ...Array(emptySpaces).fill(0)];
-    } else {
-        newRow = [...Array(emptySpaces).fill(0), ...newRow];
-    }
-
-    return newRow;
-}
-
-// Поворот сетки
-function rotateGrid(grid, reverse = false) {
-    const newGrid = [];
-    for (let i = 0; i < 4; i++) {
-        newGrid[i] = [];
-        for (let j = 0; j < 4; j++) {
-            newGrid[i][j] = reverse ? grid[j][i] : grid[3 - j][i];
+// Сжатие и объединение плиток по строке или столбцу
+function compressRow(row) {
+    let newRow = row.filter(value => value);
+    let mergedRow = [];
+    for (let i = 0; i < newRow.length; i++) {
+        if (newRow[i] === newRow[i + 1]) {
+            mergedRow.push(newRow[i] * 2);
+            score += newRow[i] * 2;
+            i++; // Пропустить следующий элемент
+        } else {
+            mergedRow.push(newRow[i]);
         }
     }
-    return newGrid;
+   
+    while (mergedRow.length < 4) mergedRow.push(0); // Заполнение до 4
+    return mergedRow;
 }
 
-// Обработка свайпов
-function handleSwipe(direction) {
-    move(direction);
+// Проверка на окончание игры
+function checkGameOver() {
+    return grid.flat().every(cell => cell !== 0) &&
+        !grid.some((row, i) => row.some((cell, j) => 
+            (j < 3 && cell === row[j + 1]) || (i < 3 && cell === grid[i + 1][j])
+        ));
 }
-
-// Кнопка перезапуска игры
-restartButton.addEventListener("click", () => {
-    gameOverDisplay.classList.add("hidden");
-    initGame();
-});
 
 // События касания
 let startX, startY;
@@ -172,5 +142,17 @@ gridContainer.addEventListener("touchend", (event) => {
     }
 });
 
-// Инициализация игры
+// Обработка свайпов
+function handleSwipe(direction) {
+    move(direction);
+}
+
+// Кнопка перезапуска игры
+restartButton.addEventListener("click", () => {
+    gameOverDisplay.classList.add("hidden");
+    initGame();
+});
+
+// Инициализация игры при загрузке страницы
 initGame();
+                             
