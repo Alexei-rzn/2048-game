@@ -84,7 +84,6 @@ function move(direction) {
             break;
 
         case 'up':
-            // Перемещение плиток вверх
             for (let j = 0; j < 4; j++) {
                 const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
                 const newColumn = slideColumn(column, direction);
@@ -98,7 +97,6 @@ function move(direction) {
             break;
 
         case 'down':
-            // Перемещение плиток вниз
             for (let j = 0; j < 4; j++) {
                 const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
                 const newColumn = slideColumn(column, direction);
