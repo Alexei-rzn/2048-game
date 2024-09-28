@@ -58,94 +58,80 @@ function checkGameOver() {
         ));
 }
 
-// Сжатие и объединение плиток
-function compressAndMerge(line) {
-    let newLine = line.filter(value => value);
-    let mergedLine = [];
-    let scoreChange = 0;
+// Логика перемещения плиток
+function move(direction) {
+    let moved = false;
+    switch (direction) {
+        case 'left':
+            for (let i = 0; i < 4; i++) {
+                const newRow = compressRow(grid[i]);
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
+                grid[i] = newRow;
+            }
+            break;
 
-    for (let i = 0; i < newLine.length; i++) {
-        // Объединение плиток
-        if (newLine[i] === newLine[i + 1]) {
-            mergedLine.push(newLine[i] * 2);
-            scoreChange += newLine[i] * 2;
-            i++; // Пропустить следующий элемент, так как он объединен
+        case 'right':
+            for (let i = 0; i < 4; i++) {
+                const newRow = compressRow(grid[i].reverse()).reverse();
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
+                grid[i] = newRow;
+            }
+            break;
+
+        case 'up':
+            grid = rotateGrid(grid);
+            for (let i = 0; i < 4; i++) {
+                const newRow = compressRow(grid[i]);
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
+                grid[i] = newRow;
+            }
+            grid = rotateGrid(grid, true);
+            break;
+
+        case 'down':
+            grid = rotateGrid(grid);
+            for (let i = 0; i < 4; i++) {
+                const newRow = compressRow(grid[i].reverse()).reverse();
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
+                grid[i] = newRow;
+            }
+            grid = rotateGrid(grid, true);
+            break;
+    }
+
+    if (moved) {
+        addNewTile();
+    }
+    updateGrid();
+}
+
+// Сжатие и объединение плиток по строке
+function compressRow(row) {
+    let newRow = row.filter(value => value);
+    let mergedRow = [];
+    for (let i = 0; i < newRow.length; i++) {
+        if (newRow[i] === newRow[i + 1]) {
+            mergedRow.push(newRow[i] * 2);
+            score += newRow[i] * 2;
+            i++; // Пропустить следующий элемент
         } else {
-            mergedLine.push(newLine[i]);
+            mergedRow.push(newRow[i]);
         }
     }
-    
-    while (mergedLine.length < 4) mergedLine.push(0); // Заполнение до 4
-    score += scoreChange;
-    
-    return { line: mergedLine, scoreChange };
+   
+    while (mergedRow.length < 4) mergedRow.push(0); // Заполнение до 4
+    return mergedRow; 
 }
 
-// Движение влево
-function moveLeft() {
-    let moved = false;
-    for (let i = 0; i < 4; i++) {
-        const { line, scoreChange } = compressAndMerge(grid[i]);
-        if (JSON.stringify(line) !== JSON.stringify(grid[i])) {
-            moved = true; // Если линия изменилась, значит что-то двигалось
-        }
-        grid[i] = line;
-    }
-    if (moved) {
-        addNewTile();
-    }
-}
-
-// Движение вправо
-function moveRight() {
-    let moved = false;
-    for (let i = 0; i < 4; i++) {
-        const { line, scoreChange } = compressAndMerge(grid[i].reverse());
-        if (JSON.stringify(line.reverse()) !== JSON.stringify(grid[i])) {
-            moved = true;
-        }
-        grid[i] = line.reverse();
-    }
-    if (moved) {
-        addNewTile();
-    }
-}
-
-// Движение вверх
-function moveUp() {
-    grid = rotateGrid(grid);
-    let moved = false;
-    for (let i = 0; i < 4; i++) {
-        const { line, scoreChange } = compressAndMerge(grid[i]);
-        if (JSON.stringify(line) !== JSON.stringify(grid[i])) {
-            moved = true;
-        }
-        grid[i] = line;
-    }
-    grid = rotateGrid(grid, true);
-    if (moved) {
-        addNewTile();
-    }
-}
-
-// Движение вниз
-function moveDown() {
-    grid = rotateGrid(grid);
-    let moved = false;
-    for (let i = 0; i < 4; i++) {
-        const { line, scoreChange } = compressAndMerge(grid[i].reverse());
-        if (JSON.stringify(line.reverse()) !== JSON.stringify(grid[i])) {
-            moved = true;
-        }
-        grid[i] = line.reverse();
-    }
-    grid = rotateGrid(grid, true);
-    if (moved) {
-        addNewTile();
-    }
-}
-
-// Поворот сетки для использования функций движения
+// Поворот сетки
 function rotateGrid(grid, reverse = false) {
     const newGrid = [];
     for (let i = 0; i < 4; i++) {
@@ -159,27 +145,7 @@ function rotateGrid(grid, reverse = false) {
 
 // Обработка свайпов
 function handleSwipe(direction) {
-    let moved = false;
-
-    switch (direction) {
-        case 'left':
-            moved = moveLeft();
-            break;
-        case 'right':
-            moved = moveRight();
-            break;
-        case 'up':
-            moved = moveUp();
-            break;
-        case 'down':
-            moved = moveDown();
-            break;
-    }
-
-    if (moved) {
-        addNewTile();
-    }
-    updateGrid();
+    move(direction);
 }
 
 // Кнопка перезапуска игры
