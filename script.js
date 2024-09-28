@@ -107,7 +107,6 @@ function move(direction) {
             break;
     }
 
-    // Добавление новой плитки только если что-то переместилось
     if (moved) {
         addNewTile();
     }
@@ -127,7 +126,8 @@ function compressRow(row) {
             mergedRow.push(newRow[i]);
         }
     }
-   
+
+    // Заполнение до 4 с учетом краев
     while (mergedRow.length < 4) mergedRow.push(0); // Заполнение до 4
     return mergedRow; 
 }
