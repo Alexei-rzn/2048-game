@@ -8,7 +8,7 @@ let score = 0;
 
 // Инициализация игры
 function initGame() {
-    grid = Array.from({ length: 4 }, () => Array(4).fill(0)); // Создаем пустое поле 4x4
+    grid = Array.from({ length: 4 }, () => Array(4).fill(0));
     score = 0;
     addNewTile();
     addNewTile();
@@ -20,18 +20,18 @@ function addNewTile() {
     let emptyCells = [];
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-            if (grid[i][j] === 0) emptyCells.push({ i, j }); // Собираем пустые ячейки
+            if (grid[i][j] === 0) emptyCells.push({ i, j });
         }
     }
     if (emptyCells.length) {
         const { i, j } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        grid[i][j] = Math.random() < 0.9 ? 2 : 4; // Добавляем новую плитку 2 или 4
+        grid[i][j] = Math.random() < 0.9 ? 2 : 4; // 90% вероятность 2, 10% - 4
     }
 }
 
-// Обновление отображения плиток
+// Обновление отображения плиток на экране
 function updateGrid() {
-    gridContainer.innerHTML = ''; // Очищаем контейнер перед отрисовкой
+    gridContainer.innerHTML = '';
     grid.forEach(row => {
         row.forEach(tile => {
             const tileElement = document.createElement("div");
@@ -43,94 +43,128 @@ function updateGrid() {
             gridContainer.appendChild(tileElement);
         });
     });
-    scoreDisplay.innerText = score; // Обновляем счёт
+    scoreDisplay.innerText = score;
 
     if (checkGameOver()) {
         gameOverDisplay.classList.remove("hidden");
     }
 }
 
-// Проверка конца игры
+// Проверка на окончание игры
 function checkGameOver() {
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-            if (grid[i][j] === 0) return false; // Если есть пустая ячейка, игра продолжается
-            if (j < 3 && grid[i][j] === grid[i][j + 1]) return false; // Если можно объединить плитки по горизонтали
-            if (i < 3 && grid[i][j] === grid[i + 1][j]) return false; // Если можно объединить плитки по вертикали
-        }
-    }
-    return true; // Если нет ходов, игра окончена
+    return grid.flat().every(cell => cell !== 0) &&
+        !grid.some((row, i) => row.some((cell, j) => 
+            (j < 3 && cell === row[j + 1]) || (i < 3 && cell === grid[i + 1][j])
+        ));
 }
 
-// Перемещение плиток в зависимости от направления
+// Логика перемещения плиток
 function move(direction) {
     let moved = false;
-    
-    if (direction === 'left') {
-        for (let i = 0; i < 4; i++) {
-            const newRow = slideAndMerge(grid[i]); // Сдвиг и объединение влево
-            if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                moved = true;
+    switch (direction) {
+        case 'left':
+            for (let i = 0; i < 4; i++) {
+                const newRow = slideRow(grid[i], direction);
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
                 grid[i] = newRow;
             }
-        }
-    } 
-    else if (direction === 'right') {
-        for (let i = 0; i < 4; i++) {
-            const newRow = slideAndMerge(grid[i].reverse()).reverse(); // Сдвиг и объединение вправо
-            if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                moved = true;
+            break;
+
+        case 'right':
+            for (let i = 0; i < 4; i++) {
+                const newRow = slideRow(grid[i].reverse(), direction).reverse();
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
                 grid[i] = newRow;
             }
-        }
-    } 
-    else if (direction === 'up') {
-        for (let j = 0; j < 4; j++) {
-            const col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
-            const newCol = slideAndMerge(col); // Сдвиг и объединение вверх
-            if (JSON.stringify(newCol) !== JSON.stringify(col)) {
-                moved = true;
-                for (let i = 0; i < 4; i++) {
-                    grid[i][j] = newCol[i];
+            break;
+
+        case 'up':
+            grid = rotateGrid(grid);
+            for (let i = 0; i < 4; i++) {
+                const newRow = slideRow(grid[i], direction);
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
                 }
+                grid[i] = newRow;
             }
-        }
-    } 
-    else if (direction === 'down') {
-        for (let j = 0; j < 4; j++) {
-            const col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]].reverse();
-            const newCol = slideAndMerge(col).reverse(); // Сдвиг и объединение вниз
-            if (JSON.stringify(newCol) !== JSON.stringify(col)) {
-                moved = true;
-                for (let i = 0; i < 4; i++) {
-                    grid[i][j] = newCol[i];
+            grid = rotateGrid(grid, true);
+            break;
+
+        case 'down':
+            grid = rotateGrid(grid);
+            for (let i = 0; i < 4; i++) {
+                const newRow = slideRow(grid[i].reverse(), direction).reverse();
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
                 }
+                grid[i] = newRow;
             }
-        }
+            grid = rotateGrid(grid, true);
+            break;
     }
 
     if (moved) {
-        addNewTile(); // Если было движение, добавляем новую плитку
+        addNewTile();
     }
-    updateGrid(); // Обновляем игровое поле
+    updateGrid();
 }
 
-// Функция для сжатия и объединения плиток в одном ряду/столбце
-function slideAndMerge(row) {
-    let newRow = row.filter(value => value); // Убираем все нули
-    for (let i = 0; i < newRow.length - 1; i++) {
-        if (newRow[i] === newRow[i + 1]) { // Если плитки одинаковые, объединяем их
-            newRow[i] *= 2;
-            score += newRow[i]; // Обновляем счёт
-            newRow[i + 1] = 0; // Обнуляем вторую плитку после объединения
+// Логика сдвига плиток в строке
+function slideRow(row, direction) {
+    let newRow = row.filter(value => value); // Удаляем нули
+    const emptySpaces = 4 - newRow.length; // Количество пустых мест
+
+    // Добавляем пустые места в начало или конец в зависимости от направления
+    if (direction === 'left') {
+        newRow = [...newRow, ...Array(emptySpaces).fill(0)];
+    } else {
+        newRow = [...Array(emptySpaces).fill(0), ...newRow];
+    }
+
+    // Логика складывания плиток
+    for (let i = 0; i < 3; i++) {
+        if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
+            newRow[i] *= 2; // Складываем плитки
+            score += newRow[i]; // Увеличиваем счёт
+            newRow[i + 1] = 0; // Обнуляем следующую плитку
         }
     }
-    newRow = newRow.filter(value => value); // Снова убираем нули после объединения
-    while (newRow.length < 4) newRow.push(0); // Дополняем ряд нулями до длины 4
+
+    // Убираем нули после складывания
+    newRow = newRow.filter(value => value);
+    while (newRow.length < 4) newRow.push(0); // Заполняем до 4
+
     return newRow;
 }
 
-// Обработка событий касания для мобильных устройств
+// Поворот сетки
+function rotateGrid(grid, reverse = false) {
+    const newGrid = [];
+    for (let i = 0; i < 4; i++) {
+        newGrid[i] = [];
+        for (let j = 0; j < 4; j++) {
+            newGrid[i][j] = reverse ? grid[j][i] : grid[3 - j][i];
+        }
+    }
+    return newGrid;
+}
+
+// Обработка свайпов
+function handleSwipe(direction) {
+    move(direction);
+}
+
+// Кнопка перезапуска игры
+restartButton.addEventListener("click", () => {
+    gameOverDisplay.classList.add("hidden");
+    initGame();
+});
+
+// События касания
 let startX, startY;
 gridContainer.addEventListener("touchstart", (event) => {
     startX = event.touches[0].clientX;
@@ -151,16 +185,5 @@ gridContainer.addEventListener("touchend", (event) => {
     }
 });
 
-// Обработка свайпов
-function handleSwipe(direction) {
-    move(direction);
-}
-
-// Кнопка перезапуска игры
-restartButton.addEventListener("click", () => {
-    gameOverDisplay.classList.add("hidden");
-    initGame();
-});
-
-// Инициализация игры при загрузке страницы
+// Инициализация игры
 initGame();
