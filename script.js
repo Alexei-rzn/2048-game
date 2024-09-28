@@ -64,7 +64,7 @@ function move(direction) {
     switch (direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i], 'left');
+                const newRow = compressRow(grid[i], direction);
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -74,7 +74,7 @@ function move(direction) {
 
         case 'right':
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i].reverse(), 'right').reverse();
+                const newRow = compressRow(grid[i].reverse(), direction).reverse();
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -85,7 +85,7 @@ function move(direction) {
         case 'up':
             grid = rotateGrid(grid);
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i], 'up');
+                const newRow = compressRow(grid[i], direction);
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -97,7 +97,7 @@ function move(direction) {
         case 'down':
             grid = rotateGrid(grid);
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i].reverse(), 'down').reverse();
+                const newRow = compressRow(grid[i].reverse(), direction).reverse();
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -131,15 +131,19 @@ function compressRow(row, direction) {
     // Заполнение до 4
     while (mergedRow.length < 4) mergedRow.push(0); 
 
-    // Применяем ограничение на движение плиток на границе
-    if (direction === 'left' || direction === 'right') {
-        if (mergedRow[0] === 0 && mergedRow[1] !== 0) {
-            mergedRow[0] = mergedRow[1];
-            mergedRow[1] = 0;
+    // Проверка на границы и неподвижные плитки
+    if (direction === 'up' || direction === 'down') {
+        if (mergedRow[0] !== 0 && grid[0][0] !== mergedRow[0]) {
+            mergedRow[0] = grid[0][0]; // Оставить плитку на месте
         }
-        if (mergedRow[2] === 0 && mergedRow[3] !== 0) {
-            mergedRow[3] = mergedRow[2];
-            mergedRow[2] = 0;
+        if (mergedRow[1] !== 0 && grid[1][0] !== mergedRow[1]) {
+            mergedRow[1] = grid[1][0]; // Оставить плитку на месте
+        }
+        if (mergedRow[2] !== 0 && grid[2][0] !== mergedRow[2]) {
+            mergedRow[2] = grid[2][0]; // Оставить плитку на месте
+        }
+        if (mergedRow[3] !== 0 && grid[3][0] !== mergedRow[3]) {
+            mergedRow[3] = grid[3][0]; // Оставить плитку на месте
         }
     }
 
