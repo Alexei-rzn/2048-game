@@ -61,6 +61,7 @@ function checkGameOver() {
 // Логика перемещения плиток
 function move(direction) {
     let moved = false;
+
     switch (direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
@@ -83,27 +84,31 @@ function move(direction) {
             break;
 
         case 'up':
-            grid = rotateGrid(grid);
-            for (let i = 0; i < 4; i++) {
-                const newRow = slideRow(grid[i], direction);
-                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                    moved = true;
+            // Перемещение плиток вверх
+            for (let j = 0; j < 4; j++) {
+                const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+                const newColumn = slideColumn(column, direction);
+                for (let i = 0; i < 4; i++) {
+                    if (grid[i][j] !== newColumn[i]) {
+                        moved = true;
+                    }
+                    grid[i][j] = newColumn[i];
                 }
-                grid[i] = newRow;
             }
-            grid = rotateGrid(grid, true);
             break;
 
         case 'down':
-            grid = rotateGrid(grid);
-            for (let i = 0; i < 4; i++) {
-                const newRow = slideRow(grid[i].reverse(), direction).reverse();
-                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
-                    moved = true;
+            // Перемещение плиток вниз
+            for (let j = 0; j < 4; j++) {
+                const column = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+                const newColumn = slideColumn(column, direction);
+                for (let i = 0; i < 4; i++) {
+                    if (grid[i][j] !== newColumn[i]) {
+                        moved = true;
+                    }
+                    grid[i][j] = newColumn[i];
                 }
-                grid[i] = newRow;
             }
-            grid = rotateGrid(grid, true);
             break;
     }
 
@@ -125,7 +130,7 @@ function slideRow(row, direction) {
         newRow = [...Array(emptySpaces).fill(0), ...newRow];
     }
 
-    // Логика складывания плиток
+    // Складывание плиток
     for (let i = 0; i < 3; i++) {
         if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
             newRow[i] *= 2; // Складываем плитки
@@ -139,6 +144,34 @@ function slideRow(row, direction) {
     while (newRow.length < 4) newRow.push(0); // Заполняем до 4
 
     return newRow;
+}
+
+// Логика сдвига плиток в колонне
+function slideColumn(column, direction) {
+    let newColumn = column.filter(value => value); // Удаляем нули
+    const emptySpaces = 4 - newColumn.length; // Количество пустых мест
+
+    // Добавляем пустые места в начало или конец в зависимости от направления
+    if (direction === 'up') {
+        newColumn = [...newColumn, ...Array(emptySpaces).fill(0)];
+    } else {
+        newColumn = [...Array(emptySpaces).fill(0), ...newColumn];
+    }
+
+    // Складывание плиток
+    for (let i = 0; i < 3; i++) {
+        if (newColumn[i] !== 0 && newColumn[i] === newColumn[i + 1]) {
+            newColumn[i] *= 2; // Складываем плитки
+            score += newColumn[i]; // Увеличиваем счёт
+            newColumn[i + 1] = 0; // Обнуляем следующую плитку
+        }
+    }
+
+    // Убираем нули после складывания
+    newColumn = newColumn.filter(value => value);
+    while (newColumn.length < 4) newColumn.push(0); // Заполняем до 4
+
+    return newColumn;
 }
 
 // Поворот сетки
