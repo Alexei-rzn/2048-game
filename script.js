@@ -64,7 +64,7 @@ function move(direction) {
     switch (direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i], direction);
+                const newRow = slideRow(grid[i], direction);
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -74,7 +74,7 @@ function move(direction) {
 
         case 'right':
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i].reverse(), direction).reverse();
+                const newRow = slideRow(grid[i].reverse(), direction).reverse();
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -85,7 +85,7 @@ function move(direction) {
         case 'up':
             grid = rotateGrid(grid);
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i], direction);
+                const newRow = slideRow(grid[i], direction);
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -97,7 +97,7 @@ function move(direction) {
         case 'down':
             grid = rotateGrid(grid);
             for (let i = 0; i < 4; i++) {
-                const newRow = compressRow(grid[i].reverse(), direction).reverse();
+                const newRow = slideRow(grid[i].reverse(), direction).reverse();
                 if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
                     moved = true;
                 }
@@ -113,41 +113,19 @@ function move(direction) {
     updateGrid();
 }
 
-// Сжатие и объединение плиток по строке
-function compressRow(row, direction) {
-    let newRow = row.filter(value => value);
-    let mergedRow = [];
-    
-    for (let i = 0; i < newRow.length; i++) {
-        if (newRow[i] === newRow[i + 1]) {
-            mergedRow.push(newRow[i] * 2);
-            score += newRow[i] * 2;
-            i++; // Пропустить следующий элемент
-        } else {
-            mergedRow.push(newRow[i]);
-        }
+// Логика сдвига плиток в строке
+function slideRow(row, direction) {
+    let newRow = row.filter(value => value); // Удаляем нули
+    const emptySpaces = 4 - newRow.length; // Количество пустых мест
+
+    // Добавляем пустые места в начало или конец в зависимости от направления
+    if (direction === 'left') {
+        newRow = [...newRow, ...Array(emptySpaces).fill(0)];
+    } else {
+        newRow = [...Array(emptySpaces).fill(0), ...newRow];
     }
 
-    // Заполнение до 4
-    while (mergedRow.length < 4) mergedRow.push(0); 
-
-    // Проверка на границы и неподвижные плитки
-    if (direction === 'up' || direction === 'down') {
-        if (mergedRow[0] !== 0 && grid[0][0] !== mergedRow[0]) {
-            mergedRow[0] = grid[0][0]; // Оставить плитку на месте
-        }
-        if (mergedRow[1] !== 0 && grid[1][0] !== mergedRow[1]) {
-            mergedRow[1] = grid[1][0]; // Оставить плитку на месте
-        }
-        if (mergedRow[2] !== 0 && grid[2][0] !== mergedRow[2]) {
-            mergedRow[2] = grid[2][0]; // Оставить плитку на месте
-        }
-        if (mergedRow[3] !== 0 && grid[3][0] !== mergedRow[3]) {
-            mergedRow[3] = grid[3][0]; // Оставить плитку на месте
-        }
-    }
-
-    return mergedRow; 
+    return newRow;
 }
 
 // Поворот сетки
