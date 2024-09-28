@@ -46,24 +46,20 @@ function move(direction) {
             break;
     }
 
-    // Проверяем, что плитки не могут выходить за границы
-    for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-            if (grid[i][j] !== 0) {
-                if (direction === 'left' && j === 0) {
-                    grid[i][j] = grid[i][j]; // Плитка не может двигаться дальше
-                } else if (direction === 'right' && j === 3) {
-                    grid[i][j] = grid[i][j]; // Плитка не может двигаться дальше
-                } else if (direction === 'up' && i === 0) {
-                    grid[i][j] = grid[i][j]; // Плитка не может двигаться дальше
-                } else if (direction === 'down' && i === 3) {
-                    grid[i][j] = grid[i][j]; // Плитка не может двигаться дальше
-                }
-            }
-        }
-    }
-
+    // Проверка, если плитки упираются в край
     if (moved) {
+        const edgeCheck = grid.map((row, rowIndex) => {
+            return row.map((tile, colIndex) => {
+                if (tile !== 0) {
+                    if (direction === 'left' && colIndex === 0) return tile;
+                    if (direction === 'right' && colIndex === 3) return tile;
+                    if (direction === 'up' && rowIndex === 0) return tile;
+                    if (direction === 'down' && rowIndex === 3) return tile;
+                }
+                return tile;
+            });
+        });
+        grid = edgeCheck;
         addNewTile();
     }
     updateGrid();
