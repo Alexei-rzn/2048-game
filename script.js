@@ -205,7 +205,7 @@ function slideColumnDown(column) {
 
     // Убираем нули после складывания
     newColumn = newColumn.filter(value => value);
-    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
+    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4
 
     return { newColumn, moved, combined };
 }
