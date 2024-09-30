@@ -66,19 +66,19 @@ function move(direction) {
     switch (direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
-                const result = slideRow(grid[i], direction);
+                const result = slideRow(grid[i]);
+                grid[i] = result.newRow;
                 if (result.moved) moved = true;
                 if (result.combined) combined = true;
-                grid[i] = result.newRow;
             }
             break;
 
         case 'right':
             for (let i = 0; i < 4; i++) {
-                const result = slideRow(grid[i].reverse(), direction);
+                const result = slideRow(grid[i].reverse());
+                grid[i] = result.newRow.reverse();
                 if (result.moved) moved = true;
                 if (result.combined) combined = true;
-                grid[i] = result.newRow.reverse();
             }
             break;
 
@@ -115,18 +115,14 @@ function move(direction) {
 }
 
 // Логика сдвига плиток в строке
-function slideRow(row, direction) {
+function slideRow(row) {
     let newRow = row.filter(value => value); // Удаляем нули
     const emptySpaces = 4 - newRow.length; // Количество пустых мест
     let moved = false;
     let combined = false;
 
-    // Добавляем пустые места в конец или начало в зависимости от направления
-    if (direction === 'left') {
-        newRow = [...newRow, ...Array(emptySpaces).fill(0)];
-    } else {
-        newRow = [...Array(emptySpaces).fill(0), ...newRow];
-    }
+    // Добавляем пустые места в конец
+    newRow = [...newRow, ...Array(emptySpaces).fill(0)];
 
     // Складывание плиток
     for (let i = 0; i < 3; i++) {
@@ -140,7 +136,7 @@ function slideRow(row, direction) {
 
     // Проверка на движение
     const originalRow = row.filter(value => value); // Убираем нули для сравнения
-    if (JSON.stringify(newRow) !== JSON.stringify(originalRow)) {
+    if (JSON.stringify(newRow) !== JSON.stringify([...originalRow, ...Array(emptySpaces).fill(0)])) {
         moved = true; // Отметить, что произошло движение
     }
 
@@ -171,7 +167,7 @@ function slideColumnUp(column) {
 
     // Проверка на движение
     const originalColumn = column.filter(value => value); // Убираем нули для сравнения
-    if (JSON.stringify(newColumn) !== JSON.stringify(originalColumn)) {
+    if (JSON.stringify(newColumn) !== JSON.stringify([...originalColumn, ...Array(4 - originalColumn.length).fill(0)])) {
         moved = true; // Отметить, что произошло движение
     }
 
@@ -202,7 +198,7 @@ function slideColumnDown(column) {
 
     // Проверка на движение
     const originalColumn = column.filter(value => value); // Убираем нули для сравнения
-    if (JSON.stringify(newColumn) !== JSON.stringify(originalColumn)) {
+    if (JSON.stringify(newColumn) !== JSON.stringify([...originalColumn, ...Array(4 - originalColumn.length).fill(0)])) {
         moved = true; // Отметить, что произошло движение
     }
 
