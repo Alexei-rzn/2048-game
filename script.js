@@ -139,7 +139,8 @@ function slideRow(row, direction) {
     }
 
     // Проверка на движение
-    if (JSON.stringify(newRow) !== JSON.stringify(row)) {
+    const originalRow = row.filter(value => value); // Убираем нули для сравнения
+    if (JSON.stringify(newRow) !== JSON.stringify(originalRow)) {
         moved = true; // Отметить, что произошло движение
     }
 
@@ -169,7 +170,8 @@ function slideColumnUp(column) {
     }
 
     // Проверка на движение
-    if (JSON.stringify(newColumn) !== JSON.stringify(column)) {
+    const originalColumn = column.filter(value => value); // Убираем нули для сравнения
+    if (JSON.stringify(newColumn) !== JSON.stringify(originalColumn)) {
         moved = true; // Отметить, что произошло движение
     }
 
@@ -199,7 +201,8 @@ function slideColumnDown(column) {
     }
 
     // Проверка на движение
-    if (JSON.stringify(newColumn) !== JSON.stringify(column)) {
+    const originalColumn = column.filter(value => value); // Убираем нули для сравнения
+    if (JSON.stringify(newColumn) !== JSON.stringify(originalColumn)) {
         moved = true; // Отметить, что произошло движение
     }
 
