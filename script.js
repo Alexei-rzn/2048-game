@@ -61,6 +61,7 @@ function checkGameOver() {
 // Логика перемещения плиток
 function move(direction) {
     let moved = false;
+    let combined = false;
 
     // Копируем текущее состояние сетки, чтобы сравнивать изменения
     const previousGrid = JSON.parse(JSON.stringify(grid));
@@ -70,15 +71,18 @@ function move(direction) {
             for (let i = 0; i < 4; i++) {
                 const result = slideRow(grid[i]);
                 grid[i] = result.newRow;
-                if (result.moved || result.combined) moved = true;
+                if (result.moved) moved = true;
+                if (result.combined) combined = true;
             }
             break;
 
         case 'right':
             for (let i = 0; i < 4; i++) {
                 const result = slideRow(grid[i].reverse());
-                grid[i] = result.newRow.reverse();
-                if (result.moved || result.combined) moved = true;
+                const reversedRow = result.newRow.reverse(); // Разворачиваем назад, чтобы вставить в сетку
+                grid[i] = reversedRow;
+                if (result.moved) moved = true;
+                if (result.combined) combined = true;
             }
             break;
 
@@ -89,7 +93,8 @@ function move(direction) {
                 for (let i = 0; i < 4; i++) {
                     grid[i][j] = result.newColumn[i];
                 }
-                if (result.moved || result.combined) moved = true;
+                if (result.moved) moved = true;
+                if (result.combined) combined = true;
             }
             break;
 
@@ -100,16 +105,17 @@ function move(direction) {
                 for (let i = 0; i < 4; i++) {
                     grid[i][j] = result.newColumn[i];
                 }
-                if (result.moved || result.combined) moved = true;
+                if (result.moved) moved = true;
+                if (result.combined) combined = true;
             }
             break;
     }
 
     // Проверка, изменилось ли состояние сетки
-    if (moved) {
+    if (moved || combined) {
         addNewTile(); // Добавляем новую плитку только если было движение или складывание
+        updateGrid(); // Обновляем отображение сетки
     }
-    updateGrid();
 }
 
 // Логика сдвига плиток в строке
@@ -213,41 +219,28 @@ function handleSwipe(direction) {
 }
 
 // Кнопка перезапуска игры
-restartButton.addEventListener("click", () => {
-    gameOverDisplay.classList.add("hidden");
-    initGame();
+restartButton.addEventListener("click", () => 
+        gameOverDisplay.classList.add("hidden"); // Скрываем сообщение об окончании игры
+    initGame(); // Перезапуск игры
 });
 
-// События касания
-let startX, startY;
-gridContainer.addEventListener("touchstart", (event) => {
-    startX = event.touches[0].clientX;
-    startY = event.touches[0].clientY;
-});
+// Начальная инициализация игры
+initGame();
 
-gridContainer.addEventListener("touchend", (event) => {
-    const endX = event.changedTouches[0].clientX;
-    const endY = event.changedTouches[0].clientY;
-
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Горизонтальное перемещение
-        if (deltaX > 0) {
-            handleSwipe('right');
-        } else {
+// Обработка нажатий клавиш для управления
+document.addEventListener("keydown", (e) => {
+    switch (e.key) {
+        case "ArrowLeft":
             handleSwipe('left');
-        }
-    } else {
-        // Вертикальное перемещение
-        if (deltaY > 0) {
-            handleSwipe('down');
-        } else {
+            break;
+        case "ArrowRight":
+            handleSwipe('right');
+            break;
+        case "ArrowUp":
             handleSwipe('up');
-        }
+            break;
+        case "ArrowDown":
+            handleSwipe('down');
+            break;
     }
 });
-
-// Инициализация игры при загрузке страницы
-window.addEventListener("load", initGame);   
