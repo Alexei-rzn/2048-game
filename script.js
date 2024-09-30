@@ -75,10 +75,10 @@ function move(direction) {
 
         case 'right':
             for (let i = 0; i < 4; i++) {
-                const result = slideRowRight(grid[i]); // Используем slideRowRight для правильного сдвига
+                const result = slideRow(grid[i].slice().reverse(), direction);
                 if (result.moved) moved = true;
                 if (result.combined) combined = true;
-                grid[i] = result.newRow;
+                grid[i] = result.newRow.reverse();
             }
             break;
 
@@ -107,154 +107,122 @@ function move(direction) {
             break;
     }
 
-    // Добавляем новую плитку только если было движение или складывание
     if (moved || combined) {
         addNewTile();
     }
     updateGrid();
 }
 
-// Логика сдвига плиток в строке влево
+// Логика сдвига плиток в строке
 function slideRow(row, direction) {
     let newRow = row.filter(value => value); // Удаляем нули
-    const emptySpaces = 4 - newRow.length; // Количество пустых мест
+    const emptySpaces = 4 - newRow.length;
     let moved = false;
     let combined = false;
 
-    // Добавляем пустые места в конец или начало в зависимости от направления
     if (direction === 'left') {
         newRow = [...newRow, ...Array(emptySpaces).fill(0)];
+    } else {
+        newRow = [...Array(emptySpaces).fill(0), ...newRow];
     }
 
-    // Складывание плиток
     for (let i = 0; i < 3; i++) {
         if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
-            newRow[i] *= 2; // Складываем плитки
-            score += newRow[i]; // Увеличиваем счёт
-            newRow[i + 1] = 0; // Обнуляем следующую плитку
-            combined = true; // Отметить, что произошло складывание
+            newRow[i] *= 2;
+            score += newRow[i];
+            newRow[i + 1] = 0;
+            combined = true;
         }
     }
 
-    // Проверка на движение
     if (JSON.stringify(newRow) !== JSON.stringify(row)) {
-        moved = true; // Отметить, что произошло движение
+        moved = true;
     }
 
-    // Убираем нули после складывания
     newRow = newRow.filter(value => value);
-    while (newRow.length < 4) newRow.push(0); // Заполняем до 4
-
-    return { newRow, moved, combined };
-}
-
-// Логика сдвига плиток в строке вправо (аналогично другим направлениям)
-function slideRowRight(row) {
-    let newRow = row.filter(value => value); // Удаляем нули
-    let moved = false;
-    let combined = false;
-
-    while (newRow.length < 4) newRow.unshift(0); // Заполняем до 4 в начале (справа)
-
-    // Складывание плиток
-    for (let i = 3; i > 0; i--) {
-        if (newRow[i] !== 0 && newRow[i] === newRow[i - 1]) {
-            newRow[i] *= 2; // Складываем плитки
-            score += newRow[i]; // Увеличиваем счёт
-            newRow[i - 1] = 0; // Обнуляем предыдущую плитку
-            combined = true; // Отметить, что произошло складывание
-        }
-    }
-
-    // Проверка на движение
-    if (JSON.stringify(newRow) !== JSON.stringify(row)) {
-        moved = true; // Отметить, что произошло движение
-    }
-
-    // Убираем нули после складывания
-    newRow = newRow.filter(value => value);
-    while (newRow.length < 4) newRow.unshift(0); // Заполняем до 4 в начале (справа)
+    while (newRow.length < 4) newRow.push(0);
 
     return { newRow, moved, combined };
 }
 
 // Логика сдвига плиток в колонне вверх
 function slideColumnUp(column) {
-    let newColumn = column.filter(value => value); // Удаляем нули
+    let newColumn = column.filter(value => value);
     let moved = false;
     let combined = false;
 
-    while (newColumn.length < 4) newColumn.push(0); // Заполняем до 4
+    while (newColumn.length < 4) newColumn.push(0);
 
-    // Складывание плиток
     for (let i = 0; i < 3; i++) {
         if (newColumn[i] !== 0 && newColumn[i] === newColumn[i + 1]) {
-            newColumn[i] *= 2; // Складываем плитки
-            score += newColumn[i]; // Увеличиваем счёт
-            newColumn[i + 1] = 0; // Обнуляем следующую плитку
-            combined = true; // Отметить, что произошло складывание
+            newColumn[i] *= 2;
+            score += newColumn[i];
+            newColumn[i + 1] = 0;
+            combined = true;
         }
     }
 
-    // Проверка на движение
     if (JSON.stringify(newColumn) !== JSON.stringify(column)) {
-        moved = true; // Отметить, что произошло движение
+        moved = true;
     }
 
-    // Убираем нули после складывания
     newColumn = newColumn.filter(value => value);
-    while (newColumn.length < 4) newColumn.push(0); // Заполняем до 4
+    while (newColumn.length < 4) newColumn.push(0);
 
     return { newColumn, moved, combined };
 }
 
 // Логика сдвига плиток в колонне вниз
 function slideColumnDown(column) {
-    let newColumn = column.filter(value => value); // Удаляем нули
+    let newColumn = column.filter(value => value);
     let moved = false;
     let combined = false;
 
-    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
+    while (newColumn.length < 4) newColumn.unshift(0);
 
-    // Складывание плиток
     for (let i = 3; i > 0; i--) {
         if (newColumn[i] !== 0 && newColumn[i] === newColumn[i - 1]) {
-            newColumn[i] *= 2; // Складываем плитки
-            score += newColumn[i]; // Увеличиваем счёт
-            newColumn[i - 1] = 0; // Обнуляем предыдущую плитку
-            combined = true; // Отметить, что произошло складывание
+            newColumn[i] *= 2;
+            score += newColumn[i];
+            newColumn[i - 1] = 0;
+            combined = true;
         }
     }
 
-    // Проверка на движение
     if (JSON.stringify(newColumn) !== JSON.stringify(column)) {
-        moved = true; // Отметить, что произошло движение
+        moved = true;
     }
 
-    // Убираем нули после складывания
     newColumn = newColumn.filter(value => value);
-    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
+    while (newColumn.length < 4) newColumn.unshift(0);
 
     return { newColumn, moved, combined };
 }
 
-// Обработка нажатий на клавиши для перемещения плиток
-document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-        case "ArrowLeft":
-            move("left");
-            break;
-        case "ArrowRight":
-            move("right");
-            break;
-        case "ArrowUp":
-            move("up");
-            break;
-        case "ArrowDown":
-            move("down");
-            break;
+// Обработка свайпов (касаний)
+let startX, startY;
+gridContainer.addEventListener("touchstart", (event) => {
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+});
+
+gridContainer.addEventListener("touchend", (event) => {
+    const endX = event.changedTouches[0].clientX;
+    const endY = event.changedTouches[0].clientY;
+
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        handleSwipe(deltaX > 0 ? 'right' : 'left');
+    } else {
+        handleSwipe(deltaY > 0 ? 'down' : 'up');
     }
 });
+
+function handleSwipe(direction) {
+    move(direction);
+}
 
 // Перезапуск игры
 restartButton.addEventListener("click", () => {
@@ -262,5 +230,6 @@ restartButton.addEventListener("click", () => {
     initGame();
 });
 
-// Инициализация игры при загрузке страницы
+// Инициализация игры
 initGame();
+                
