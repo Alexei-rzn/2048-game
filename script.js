@@ -61,7 +61,6 @@ function checkGameOver() {
 // Логика перемещения плиток
 function move(direction) {
     let moved = false;
-    let combined = false;
 
     // Копируем текущее состояние сетки, чтобы сравнивать изменения
     const previousGrid = JSON.parse(JSON.stringify(grid));
@@ -71,8 +70,7 @@ function move(direction) {
             for (let i = 0; i < 4; i++) {
                 const result = slideRow(grid[i]);
                 grid[i] = result.newRow;
-                if (result.moved) moved = true;
-                if (result.combined) combined = true;
+                if (result.moved || result.combined) moved = true;
             }
             break;
 
@@ -80,8 +78,7 @@ function move(direction) {
             for (let i = 0; i < 4; i++) {
                 const result = slideRow(grid[i].reverse());
                 grid[i] = result.newRow.reverse();
-                if (result.moved) moved = true;
-                if (result.combined) combined = true;
+                if (result.moved || result.combined) moved = true;
             }
             break;
 
@@ -92,8 +89,7 @@ function move(direction) {
                 for (let i = 0; i < 4; i++) {
                     grid[i][j] = result.newColumn[i];
                 }
-                if (result.moved) moved = true;
-                if (result.combined) combined = true;
+                if (result.moved || result.combined) moved = true;
             }
             break;
 
@@ -104,18 +100,14 @@ function move(direction) {
                 for (let i = 0; i < 4; i++) {
                     grid[i][j] = result.newColumn[i];
                 }
-                if (result.moved) moved = true;
-                if (result.combined) combined = true;
+                if (result.moved || result.combined) moved = true;
             }
             break;
     }
 
     // Проверка, изменилось ли состояние сетки
-    if (JSON.stringify(previousGrid) !== JSON.stringify(grid)) {
-        // Добавляем новую плитку только если было движение или складывание
-        if (moved || combined) {
-            addNewTile();
-        }
+    if (moved) {
+        addNewTile(); // Добавляем новую плитку только если было движение или складывание
     }
     updateGrid();
 }
@@ -241,11 +233,21 @@ gridContainer.addEventListener("touchend", (event) => {
     const deltaY = endY - startY;
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        handleSwipe(deltaX > 0 ? 'right' : 'left');
+        // Горизонтальное перемещение
+        if (deltaX > 0) {
+            handleSwipe('right');
+        } else {
+            handleSwipe('left');
+        }
     } else {
-        handleSwipe(deltaY > 0 ? 'down' : 'up');
+        // Вертикальное перемещение
+        if (deltaY > 0) {
+            handleSwipe('down');
+        } else {
+            handleSwipe('up');
+        }
     }
 });
 
-// Инициализация игры
-initGame();
+// Инициализация игры при загрузке страницы
+window.addEventListener("load", initGame);   
