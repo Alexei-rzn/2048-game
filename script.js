@@ -63,6 +63,9 @@ function move(direction) {
     let moved = false;
     let combined = false;
 
+    // Копируем текущее состояние сетки, чтобы сравнивать изменения
+    const previousGrid = JSON.parse(JSON.stringify(grid));
+
     switch (direction) {
         case 'left':
             for (let i = 0; i < 4; i++) {
@@ -107,9 +110,12 @@ function move(direction) {
             break;
     }
 
-    // Добавляем новую плитку только если было движение или складывание
-    if (moved || combined) {
-        addNewTile();
+    // Проверка, изменилось ли состояние сетки
+    if (JSON.stringify(previousGrid) !== JSON.stringify(grid)) {
+        // Добавляем новую плитку только если было движение или складывание
+        if (moved || combined) {
+            addNewTile();
+        }
     }
     updateGrid();
 }
