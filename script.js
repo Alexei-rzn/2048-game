@@ -126,6 +126,7 @@ function slideRow(row, direction) {
         newRow = [...Array(emptySpaces).fill(0), ...newRow];
     }
 
+    // Проходим по строке и совмещаем плитки
     for (let i = 0; i < 3; i++) {
         if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
             newRow[i] *= 2;
@@ -135,12 +136,11 @@ function slideRow(row, direction) {
         }
     }
 
-    if (JSON.stringify(newRow) !== JSON.stringify(row)) {
-        moved = true;
-    }
+    // Фильтруем нули и добавляем обратно в конце/начале строки
+    const filteredRow = newRow.filter(value => value);
+    if (filteredRow.length < newRow.length) moved = true;
 
-    newRow = newRow.filter(value => value);
-    while (newRow.length < 4) newRow.push(0);
+    newRow = direction === 'left' ? [...filteredRow, ...Array(emptySpaces).fill(0)] : [...Array(emptySpaces).fill(0), ...filteredRow];
 
     return { newRow, moved, combined };
 }
@@ -232,4 +232,3 @@ restartButton.addEventListener("click", () => {
 
 // Инициализация игры
 initGame();
-                
