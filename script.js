@@ -75,10 +75,10 @@ function move(direction) {
 
         case 'right':
             for (let i = 0; i < 4; i++) {
-                const result = slideRow(grid[i].slice().reverse(), direction);
+                const result = slideRow(grid[i].slice().reverse(), 'left'); // Обрабатываем как движение влево
                 if (result.moved) moved = true;
                 if (result.combined) combined = true;
-                grid[i] = result.newRow.reverse();
+                grid[i] = result.newRow.reverse(); // Возвращаем порядок обратно
             }
             break;
 
@@ -107,6 +107,7 @@ function move(direction) {
             break;
     }
 
+    // Добавляем новую плитку только если было движение или складывание
     if (moved || combined) {
         addNewTile();
     }
@@ -116,90 +117,111 @@ function move(direction) {
 // Логика сдвига плиток в строке
 function slideRow(row, direction) {
     let newRow = row.filter(value => value); // Удаляем нули
-    const emptySpaces = 4 - newRow.length;
+    const emptySpaces = 4 - newRow.length; // Количество пустых мест
     let moved = false;
     let combined = false;
 
+    // Добавляем пустые места в конец или начало в зависимости от направления
     if (direction === 'left') {
         newRow = [...newRow, ...Array(emptySpaces).fill(0)];
     } else {
         newRow = [...Array(emptySpaces).fill(0), ...newRow];
     }
 
-    // Проходим по строке и совмещаем плитки
+    // Складывание плиток
     for (let i = 0; i < 3; i++) {
         if (newRow[i] !== 0 && newRow[i] === newRow[i + 1]) {
-            newRow[i] *= 2;
-            score += newRow[i];
-            newRow[i + 1] = 0;
-            combined = true;
+            newRow[i] *= 2; // Складываем плитки
+            score += newRow[i]; // Увеличиваем счёт
+            newRow[i + 1] = 0; // Обнуляем следующую плитку
+            combined = true; // Отметить, что произошло складывание
         }
     }
 
-    // Фильтруем нули и добавляем обратно в конце/начале строки
-    const filteredRow = newRow.filter(value => value);
-    if (filteredRow.length < newRow.length) moved = true;
+    // Проверка на движение
+    if (JSON.stringify(newRow) !== JSON.stringify(row)) {
+        moved = true; // Отметить, что произошло движение
+    }
 
-    newRow = direction === 'left' ? [...filteredRow, ...Array(emptySpaces).fill(0)] : [...Array(emptySpaces).fill(0), ...filteredRow];
+    // Убираем нули после складывания
+    newRow = newRow.filter(value => value);
+    while (newRow.length < 4) newRow.push(0); // Заполняем до 4
 
     return { newRow, moved, combined };
 }
 
 // Логика сдвига плиток в колонне вверх
 function slideColumnUp(column) {
-    let newColumn = column.filter(value => value);
+    let newColumn = column.filter(value => value); // Удаляем нули
     let moved = false;
     let combined = false;
 
-    while (newColumn.length < 4) newColumn.push(0);
+    while (newColumn.length < 4) newColumn.push(0); // Заполняем до 4
 
+    // Складывание плиток
     for (let i = 0; i < 3; i++) {
         if (newColumn[i] !== 0 && newColumn[i] === newColumn[i + 1]) {
-            newColumn[i] *= 2;
-            score += newColumn[i];
-            newColumn[i + 1] = 0;
-            combined = true;
+            newColumn[i] *= 2; // Складываем плитки
+            score += newColumn[i]; // Увеличиваем счёт
+            newColumn[i + 1] = 0; // Обнуляем следующую плитку
+            combined = true; // Отметить, что произошло складывание
         }
     }
 
+    // Проверка на движение
     if (JSON.stringify(newColumn) !== JSON.stringify(column)) {
-        moved = true;
+        moved = true; // Отметить, что произошло движение
     }
 
+    // Убираем нули после складывания
     newColumn = newColumn.filter(value => value);
-    while (newColumn.length < 4) newColumn.push(0);
+    while (newColumn.length < 4) newColumn.push(0); // Заполняем до 4
 
     return { newColumn, moved, combined };
 }
 
 // Логика сдвига плиток в колонне вниз
 function slideColumnDown(column) {
-    let newColumn = column.filter(value => value);
+    let newColumn = column.filter(value => value); // Удаляем нули
     let moved = false;
     let combined = false;
 
-    while (newColumn.length < 4) newColumn.unshift(0);
+    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
 
+    // Складывание плиток
     for (let i = 3; i > 0; i--) {
         if (newColumn[i] !== 0 && newColumn[i] === newColumn[i - 1]) {
-            newColumn[i] *= 2;
-            score += newColumn[i];
-            newColumn[i - 1] = 0;
-            combined = true;
+            newColumn[i] *= 2; // Складываем плитки
+            score += newColumn[i]; // Увеличиваем счёт
+            newColumn[i - 1] = 0; // Обнуляем предыдущую плитку
+            combined = true; // Отметить, что произошло складывание
         }
     }
 
+    // Проверка на движение
     if (JSON.stringify(newColumn) !== JSON.stringify(column)) {
-        moved = true;
+        moved = true; // Отметить, что произошло движение
     }
 
+    // Убираем нули после складывания
     newColumn = newColumn.filter(value => value);
-    while (newColumn.length < 4) newColumn.unshift(0);
+    while (newColumn.length < 4) newColumn.unshift(0); // Заполняем до 4 в начале
 
     return { newColumn, moved, combined };
 }
 
-// Обработка свайпов (касаний)
+// Обработка свайпов
+function handleSwipe(direction) {
+    move(direction);
+}
+
+// Кнопка перезапуска игры
+restartButton.addEventListener("click", () => {
+    gameOverDisplay.classList.add("hidden");
+    initGame();
+});
+
+// События касания
 let startX, startY;
 gridContainer.addEventListener("touchstart", (event) => {
     startX = event.touches[0].clientX;
@@ -211,24 +233,25 @@ gridContainer.addEventListener("touchend", (event) => {
     const endY = event.changedTouches[0].clientY;
 
     const deltaX = endX - startX;
-    const deltaY = endY - startY;
+        const deltaY = endY - startY;
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        handleSwipe(deltaX > 0 ? 'right' : 'left');
+        // Определяем горизонтальное движение
+        if (deltaX > 0) {
+            handleSwipe('right'); // Свайп вправо
+        } else {
+            handleSwipe('left'); // Свайп влево
+        }
     } else {
-        handleSwipe(deltaY > 0 ? 'down' : 'up');
+        // Определяем вертикальное движение
+        if (deltaY > 0) {
+            handleSwipe('down'); // Свайп вниз
+        } else {
+            handleSwipe('up'); // Свайп вверх
+        }
     }
 });
 
-function handleSwipe(direction) {
-    move(direction);
-}
-
-// Перезапуск игры
-restartButton.addEventListener("click", () => {
-    gameOverDisplay.classList.add("hidden");
-    initGame();
-});
-
-// Инициализация игры
+// Инициализация игры при загрузке
 initGame();
+                    
