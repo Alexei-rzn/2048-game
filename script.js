@@ -25,7 +25,7 @@ function addNewTile() {
     }
     if (emptyCells.length) {
         const { i, j } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        grid[i][j] = Math.random() < 0.9 ? 2 : 4; // 90% вероятность 2, 10% - 4
+        grid[i][j] = Math.random() < 0.8 ? 2 : 4; // 80% вероятность 2, 20% - 4
     }
 }
 
